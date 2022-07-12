@@ -151,7 +151,6 @@ table {
 		width: 100%;
 		height: auto;
 		display: inline-block;
-		/*margin-bottom:24px;*/
 	}
 	.color_caution {
 		color:rgb(255,201,14);
@@ -219,12 +218,6 @@ table {
 		height: auto;
 		display: inline-block;
 		float:left;
-	}
-	#print-pdf-button {
-		width:260px;position:fixed;bottom:0px;
-		/*left:calc(50% - 130px);*/
-		right:8px;
-		border:none;color:white;cursor:pointer;height:46px;margin-top:2px;border-radius:2px;line-height:36px;font-size:15px;width:200px;float:right;margin-left:12px;
 	}
 }
 	.ct-grid {
@@ -295,8 +288,8 @@ table {
 		display: inline-block;
 		width: 100%;
 		padding: 0px 0px 4px 0px;
-		border-bottom: 1px solid rgb(0,162,232);
-		color: rgb(0,162,232);
+		border-bottom: 1px solid red;
+		color: red;
 		margin-bottom: 10px;
 	}
 	.page_devision {
@@ -304,12 +297,6 @@ table {
 		height: auto;
 		display: inline-block;
 		float:left;
-	}
-	#print-pdf-button {
-		width:260px;position:fixed;bottom:0px;
-		/*left:calc(50% - 130px);*/
-		right:8px;
-		border:none;color:white;cursor:pointer;height:46px;margin-top:2px;border-radius:2px;line-height:36px;font-size:15px;width:200px;float:right;margin-left:12px;
 	}
 
 	
