@@ -1,3 +1,6 @@
+<head>
+  <script src="https://kit.fontawesome.com/2e34e21cf5.js" crossorigin="anonymous"></script>
+</head>
 <div class="main-container" style="padding-right:-10px;min-width:960px;height:calc(100vh - 90px);overflow:hidden;">
   <div class="div_nen_den" style="" id="upload_record_popup">
     <form ng-submit="save_this_record()">
@@ -5,22 +8,20 @@
           <div class="header">
             <h2 style="">UPLOAD A RECORD</h2>
             <label ng-click="close_popup_upload_record()" class="record-block-quiter" style="font-size:24px;top:11px;right:6px;">
-              <!--<i class="fa fa-times" aria-hidden="true"></i>-->
+              <i class="fa-solid fa-hexagon-xmark"></i>
             </label>
           </div>
           <div class="body">
               <div class="collum" style="width:34%;border-right:0px solid black;padding:14px;">
                 <label for="file-upload" class="custom-file-upload" style="margin-top:2px;">
-                  <!--<i class="fa fa-cloud-upload" style="margin-right:4px;">--></i> Custom Upload
+                  Custom Upload
                 </label>
                 <input on-read-file="importPackageFromTextFile($fileContent)" id="file-upload" type="file"/>
                 <span style="width:100%;display:inline-block;float:left;text-align:center;margin-top:18px;">
-                  <!--<i class="fa fa-pencil-square-o" aria-hidden="true" style="margin-right:3px;font-size:13px;"></i>-->
                   Or paste data here:
                 </span>
                 <textarea required ng-change="update_ecg_data_and_duration()" class="sub-section" style="height:232px;margin-top:18px;" ng-model="file_content"></textarea>
                 <span style="width:100%;display:inline-block;float:left;text-align:left;margin:16px 0px;font-size:13px;padding-left:2px;">
-                  <!--<i class="fa fa-file-o" aria-hidden="true" style="margin-right:2px;"></i>-->
                   Total: {{ecg_data.length | number}} rows
                 </span>
               </div>
@@ -28,7 +29,6 @@
 
                 <div class="collum" style="width:80%;float:left;">
                   <span style="width:100%;display:inline-block;float:left;text-align:left;margin:13px 0px;font-size:16px;padding-left:2px;">
-                    <!--<i class="fa fa fa-key" aria-hidden="true" style="margin-right:2px;"></i>-->
                     Record name:
                   </span>
                   <input required type="text" class="sub-section" placeholder="Record name..." ng-model="record_name" style="width:calc(100% - 26px);border-top-right-radius:0px;border-bottom-right-radius:0px;">
@@ -36,7 +36,6 @@
 
                 <div class="collum" style="width:20%;float:left;padding:0px;margin-left:-30px;">
                   <span style="width:100%;display:inline-block;float:left;text-align:left;margin:13px 0px;font-size:16px;padding-left:2px;">
-                    <!--<i class="fa fa-calendar-o" aria-hidden="true" style="margin-right:2px;"></i>-->
                     Date:
                   </span>
                   <input required type="text" class="sub-section" placeholder="Record name..." ng-model="record_date" value="{{record_date}}" style="width:120px;border-top-left-radius:0px;border-bottom-left-radius:0px;" disabled>
@@ -52,7 +51,6 @@
 -->
                 <div class="collum" style="width:80%;float:left;margin-top:-8px;">
                   <span style="width:100%;display:inline-block;float:left;text-align:left;margin:13px 0px;font-size:16px;padding-left:2px;">
-                    <!--<i class="fa fa fa-key" aria-hidden="true" style="margin-right:2px;"></i>-->
                     Sampling frequency:
                   </span>
                   <input required ng-change="update_duration()" type="text" class="sub-section" placeholder="Hz..." ng-model="record_sampling_frequency" style="width:calc(100% - 26px);border-top-right-radius:0px;border-bottom-right-radius:0px;">
@@ -60,7 +58,6 @@
 
                 <div class="collum" style="width:20%;float:left;padding:0px;margin-left:-30px;margin-top:-8px;">
                   <span style="width:100%;display:inline-block;float:left;text-align:left;margin:13px 0px;font-size:16px;padding-left:2px;">
-                    <!--<i class="fa fa-clock-o" aria-hidden="true" style="margin-right:2px;"></i>-->
                     Duration:
                   </span>
                   <input required type="text" class="sub-section" placeholder="sec..." ng-model="record_duration" value="{{record_duration | number}}" style="width:120px;border-top-left-radius:0px;border-bottom-left-radius:0px;" disabled>
@@ -69,11 +66,9 @@
                 <div class="collum" style="width:100%;float:left;margin-top:6px;">
                   <div class="my-card" style=";margin-left:6px;height:46px;background-color:transparent;float:right;width:100%;">
                     <button type="submit" class="sign-in button" style="border:none;color:white;cursor:pointer;height:46px;margin-top:2px;border-radius:2px;line-height:36px;font-size:15px;width:200px;float:right;margin-left:12px;">
-                      <!--<i class="fa fa-cloud-upload" aria-hidden="true" style="margin-right:2px;"></i>-->
                       Upload now
                     </button>
                     <button ng-click="close_popup_upload_record()" class="sign-in button cancel-btn" style="">
-                      <!--<i class="fa fa-time" aria-hidden="true" style="margin-right:2px;"></i>-->
                       Cancel
                     </button>
                   </div>
@@ -133,7 +128,6 @@
     </div>
     <div class="my-card" style="width:216px;margin-left:6px;height:46px;background-color:transparent;float:right;">
       <button ng-click="open_popup_upload_record()" class="sign-in button" style="border:none;color:white;cursor:pointer;width:100%;height:46px;margin-top:2px;border-radius:2px;line-height:36px;font-size:15px;">
-       <!-- <i class="fa fa-cloud-upload" aria-hidden="true" style="margin-right:2px;"></i>-->
         Upload Record
       </button>
     </div>
@@ -150,7 +144,6 @@
           </div>
           <div class="" style="width:100%;float:left;display:inline-block;margin-top:-10px;padding-left:10px;height:32px;line-height:20px;padding-right:10px;">
             <p style="font-size:14px;height:32px;line-height:20px;" class="grey_color overflow-3dot">
-              <!--<i class="fa fa-sticky-note-o" aria-hidden="true"></i>-->
                {{record.description}}
              </p>
           </div>
@@ -162,7 +155,7 @@
           </ul>
         </div>
         <label ng-click="delete_this_record($index)" class="record-block-quiter grey_color" style="">
-         <!-- <i class="fa fa-times" aria-hidden="true"></i>-->
+         <i class="fa-solid fa-hexagon-xmark"></i>
         </label>
       </div>
     </div>
