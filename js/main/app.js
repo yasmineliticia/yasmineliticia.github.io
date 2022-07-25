@@ -1,14 +1,14 @@
-﻿var app = angular.module("app", ['ngRoute', 'ngSanitize', 'ngFileSaver']);
+var app = angular.module("app", ['ngRoute', 'ngSanitize', 'ngFileSaver']);
 
 app.config(function ($routeProvider) {
   $routeProvider
     .when("/", {
-      templateUrl: "templates/recordsController.html",
+      templateUrl: "templates/recordsTemplate.html",
       controller: "recordsController"
     })
 
     .when("/records", {
-      templateUrl: "templates/recordsController.html",
+      templateUrl: "templates/recordsTemplate.html",
       controller: "recordsController"
     })
     .otherwise(
