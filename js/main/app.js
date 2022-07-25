@@ -12,7 +12,7 @@ app.config(function ($routeProvider) {
       controller: "recordsController"
     })
     .otherwise(
-      { redirectTo: "/main"}
+      { redirectTo: "/dashboard"}
     );
 });
 
