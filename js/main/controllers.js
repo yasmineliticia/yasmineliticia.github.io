@@ -153,7 +153,7 @@ var app = angular.module("app")
     $scope.analize_this_signal = function(record) {
       var index = $scope.records.indexOf(record);
       $window.localStorage["ECG_command_analysis_to_run_this_signal"] = JSON.stringify($scope.records[index]);
-      $window.open("analysis-2.html", "_blank", 'width=1260,height=760');
+      $window.open("analysis_2.html", "_blank", 'width=1260,height=760');
     };
     $scope.delete_this_record = function(index) {
       if (confirm("Delete record " + $scope.records[index].name + "?")) {
