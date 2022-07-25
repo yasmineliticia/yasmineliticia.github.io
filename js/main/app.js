@@ -3,13 +3,13 @@
 app.config(function ($routeProvider) {
   $routeProvider
     .when("/", {
-      templateUrl: "templates/dataTemplate.html",
-      controller: "dataController"
+      templateUrl: "templates/recordsController.html",
+      controller: "recordsController"
     })
 
     .when("/records", {
-      templateUrl: "templates/dataTemplate.html",
-      controller: "dataController"
+      templateUrl: "templates/recordsController.html",
+      controller: "recordsController"
     })
     .otherwise(
       { redirectTo: "/main"}
