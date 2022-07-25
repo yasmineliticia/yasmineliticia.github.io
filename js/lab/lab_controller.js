@@ -65,17 +65,6 @@ var app = angular.module("app")
     $scope.userInfo = JSON.parse($window.localStorage["cassandra_userInfo"]);
   };
 
-  // jQuery(window).on("resize", function() {
-  //   var vw = jQuery(window).width();
-  //   if (vw < 1000) {
-  //     jQuery(".lab_view").css("padding-top","10px");
-  //     jQuery(".feature-block").css("padding","0px");
-  //   } else {
-  //     jQuery(".lab_view").css("padding-top","90px");
-  //     jQuery(".feature-block").css("padding","0px 0px 0px 10px;");
-  //   };
-  // });
-
   $scope.status_pool = ["Normal", "Brady", "Tarchy", "AF", "Arryth", "Ische", "Stroke", "Deadly"];
   var colors_pool = [green_code, orange_code, red_code];
 
@@ -199,119 +188,75 @@ var app = angular.module("app")
     } else {
       $scope.chart = new Chartist.Line('.ct-chart', chart_data, create_chart_options_without_highlow([true, false], [true, true]));
     }
-    // $scope.chart_fecg = new Chartist.Line('.fecg-chart', chart_data, create_chart_options([false, false], [false, false], dsp.find_max(ecg_bin), dsp.find_min(ecg_bin)));
-    // $scope.chart.on('draw', function(context) {
-    //   // First we want to make sure that only do something when the draw event is for bars. Draw events do get fired for labels and grids too.
-    //   if(context.type === 'line') {
-    //     // With the Chartist.Svg API we can easily set an attribute on our bar that just got drawn
-    //     context.element.attr({
-    //       // Now we set the style attribute on our bar to override the default color of the bar. By using a HSL colour we can easily set the hue of the colour dynamically while keeping the same saturation and lightness. From the context we can also get the current value of the bar. We use that value to calculate a hue between 0 and 100 degree. This will make our bars appear green when close to the maximum and red when close to zero.
-    //       style: 'stroke: ' + $scope.health_color
-    //     });
-    //   }
-    // });
-    // $scope.chart_fecg.on('draw', function(context) {
-    //   // First we want to make sure that only do something when the draw event is for bars. Draw events do get fired for labels and grids too.
-    //   if(context.type === 'line') {
-    //     // With the Chartist.Svg API we can easily set an attribute on our bar that just got drawn
-    //     context.element.attr({
-    //       // Now we set the style attribute on our bar to override the default color of the bar. By using a HSL colour we can easily set the hue of the colour dynamically while keeping the same saturation and lightness. From the context we can also get the current value of the bar. We use that value to calculate a hue between 0 and 100 degree. This will make our bars appear green when close to the maximum and red when close to zero.
-    //       style: 'stroke: ' + $scope.health_color
-    //     });
-    //   }
-    // });
   };
 
   var perform_diagnosis_for_these_features = function(hr, hrv, std, tp) {
     if (std > 30 && tp > 80) {
-      // $scope.health_condition = 2;
       $scope.statistics_count[2] += 1;
       $scope.health = "ST Elevate";
-      // $scope.health = "Danger";
       return;
     };
     if (std < -20 && tp < -20) {
-      // $scope.health_condition = 2;
       $scope.statistics_count[2] += 1;
       $scope.health = "NSTEMI";
-      // $scope.health = "Danger";
       return;
     };
     if (hrv > 20 && hr < 90) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[1] += 1;
       $scope.health = "PVC";
-      // $scope.health = "Caution";
       return;
     };
     if (hrv > 12) {
-      // $scope.health_condition = 2;
       $scope.statistics_count[1] += 1;
       $scope.health = "Arrythmia";
-      // $scope.health = "Caution";
       return;
     };
 
     if (tp < -10) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[1] += 1;
       $scope.health = "T inverted";
-      // $scope.health = "Caution";
       return;
     };
 
     if (tp > 100) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[1] += 1;
       $scope.health = "T peaked";
-      // $scope.health = "Caution";
       return;
     };
 
     if (std < -10 || std > 20) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[1] += 1;
       $scope.health = "ST Deviate";
-      // $scope.health = "Caution";
       return;
     };
 
 
     if (hr > 140) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[1] += 1;
       $scope.health = "Tarchy";
-      // $scope.health = "Caution";
       return;
     };
     if (hr > 120) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[0] += 1;
       $scope.health = "Fast HR";
-      // $scope.health = "Caution";
       return;
     };
     if (hr < 50) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[1] += 1;
       $scope.health = "Brady";
-      // $scope.health = "Caution";
       return;
     };
     if (hr < 60) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[0] += 1;
       $scope.health = "Slow HR";
-      // $scope.health = "Caution";
       return;
     };
     if (tp > -10 && tp < 4) {
-      // $scope.health_condition = 1;
       $scope.statistics_count[1] += 1;
       $scope.health = "T Absence";
       return;
     };
-    // $scope.health_condition = 0;
+
     $scope.statistics_count[0] += 1;
     $scope.health = "Normal";
   };
@@ -371,9 +316,7 @@ var app = angular.module("app")
         ecg_bin = dsp.down_sampling($scope.down_sampling_value, ecg_bin);
         ecg_bin = dsp.baseline_remove_using_moving_average(ecg_bin);
         $scope.initiate_chart_when_ecg_bin_has_data(true);
-        // var chart_max_value = dsp.find_max(ecg_bin);
-        // var chart_min_value = dsp.find_min(ecg_bin);
-        // $scope.initiateChart(chart_max_value, chart_min_value);
+
       } else {
         ecg_bin = dsp.noise_removal_using_low_pass_filter(ecg_bin);
         ecg_bin = dsp.smooth_signal_with_moving_avarage(4, ecg_bin);
@@ -394,25 +337,6 @@ var app = angular.module("app")
     $scope.custom_timeout = $timeout(function() {
 
       // DUNG DUNG VO, QUAN TRONG REFERENCE
-
-      // socket.emit("get_sample_ecg_data_from_server", { number_of_samples: 320 });
-      // socket.on("get_sample_ecg_data_from_server_result", function(data) {
-      //   console.log("Received data package from server");
-      //   $scope.sampling_frequency = data.sampling_frequency;
-      //   var ecg_package = data.ecg_data;
-      //   $scope.ecg_storage = $scope.ecg_storage.concat(ecg_package);
-      //   $scope.record_sampling_frequency = $scope.sampling_frequency;
-      //   $scope.down_sampling_value = Math.floor($scope.sampling_frequency / $scope.plot_speed);
-      //   for (var loop = 0; loop < ecg_package.length; loop ++) {
-      //     ecg_package[loop] = ecg_package[loop] * 1000;
-      //   };
-      //   ecg_package = preprocess_signal([10, 1500], $scope.down_sampling_value, null, ecg_package);
-      //   ecg_bin = ecg_bin.concat(ecg_package);
-      // });
-      // $scope.cancel_custom_timeout();
-      // $scope.initiate_chart_when_ecg_bin_has_data();
-      // jQuery("#page_loading").hide();
-
       $scope.data_retrieved_from = "server";
       heroku_socket.on("data_array_from_phone_to_server_then_to_clients", function(data_array) {
           $scope.data_retrieved_from = "phone";
@@ -424,9 +348,7 @@ var app = angular.module("app")
           var ecg_temp_bin = [];
           var ecg_special_temp = [];
           for (var loop = 0; loop < ecg_package.length; loop++) {
-            // if (ecg_package[loop] > 4000000 && ecg_package[loop] < 8000000) {
-            //   ecg_temp_bin.push(ecg_package[loop]);
-            // };
+  
             if (ecg_package[loop] > 0 && ecg_package[loop] < 8000000) {
               ecg_temp_bin.push(ecg_package[loop]);
             };
@@ -454,15 +376,7 @@ var app = angular.module("app")
           var ecg_temp_bin = [];
           var ecg_special_temp = [];
           ecg_temp_bin = ecg_package;
-          // for (var loop = 0; loop < ecg_package.length; loop++) {
-          //   if (ecg_package[loop] > 4000000 && ecg_package[loop] < 8000000) {
-          //     ecg_temp_bin.push(ecg_package[loop]);
-          //   };
-          // };
-          // var value_to_substract_important = ecg_temp_bin[0];
-          // for (var loop = 0; loop < ecg_temp_bin.length; loop++) {
-          //   ecg_temp_bin[loop] = ecg_temp_bin[loop] - value_to_substract_important;
-          // };
+
           $scope.down_sampling_value = Math.floor($scope.sampling_frequency / $scope.plot_speed);
           ecg_temp_bin = dsp.noise_removal_using_low_pass_filter(ecg_temp_bin);
           ecg_temp_bin = dsp.smooth_signal_with_moving_avarage(4, ecg_temp_bin);
@@ -470,7 +384,6 @@ var app = angular.module("app")
           $scope.ecg_storage = $scope.ecg_storage.concat(ecg_package);
           ecg_package = dsp.down_sampling($scope.down_sampling_value, ecg_package);
           ecg_package = dsp.baseline_remove_using_moving_average(ecg_package);
-          // ecg_package = preprocess_signal([10, 1500], $scope.down_sampling_value, null, ecg_package);
           ecg_bin = ecg_bin.concat(ecg_package);
       });
       $scope.cancel_custom_timeout();
@@ -641,8 +554,6 @@ var app = angular.module("app")
     if ($scope.data_pointer < ecg_bin.length) {
       chart_update_interval_tasks_handle();
     } else {
-      // $scope.data_pointer = 0;
-      // chart_update_interval_tasks_handle();
       stop_all_intervals_and_timeouts();
       special_resume_chart_update_interval();
     };
@@ -839,15 +750,7 @@ var app = angular.module("app")
         var last_value = $scope.ecg_storage[$scope.ecg_storage.length - 1];
         text_output_to_area += (last_value);
       };
-
-      // var value_to_devine = dsp.find_max($scope.ecg_storage);
-      // for (var loop = 0; loop < $scope.ecg_storage.length - 1; loop++) {
-      //   var value = Math.floor($scope.ecg_storage[loop] / value_to_devine * 10000) / 10000;
-      //   text_output_to_area += (value + "\n");
-      // };
-      // var last_value = Math.floor($scope.ecg_storage[$scope.ecg_storage.length - 1] / value_to_devine * 10000) / 10000;
-      // text_output_to_area += (last_value);
-
+      
       $scope.file_content = text_output_to_area;
       $scope.update_duration();
       jQuery("#page_loading").hide();

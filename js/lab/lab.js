@@ -174,7 +174,6 @@ app.service ('dsp', function() {
       power = 1;            // SWEET SPOT, NOT TO CHANGE
     };
     data2 = this.magnify_maximum(data, baseline, power);
-    // var min_peak_value = this.cal_mean(data2) + 1.5 * this.cal_std(data2);
     var min_peak_value = this.cal_mean(data2) + 1 * this.cal_std(data2);
     var min_peak_distance = Math.floor(1 / max_hr_hz * fs);
     try {
@@ -199,17 +198,14 @@ app.service ('dsp', function() {
     };
     var t_peaks = [];
     var t_locs = [];
-    // var iso = this.cal_mean(ecg_data);
     for (var hk = 0; hk < qrs_locs.length; hk++) {
       var delay_of_qrs = 1;
       var delay_of_iso = -2;
       var qrs = ecg_data[qrs_locs[hk] + delay_of_qrs];
       var iso = ecg_data[qrs_locs[hk] + delay_of_iso];
       if (iso < -500) { iso = 0; };
-      // console.log(iso);
       var qrs_amplitude = Math.abs(qrs - iso);
       var qrs_leng = qrs_locs[hk + 1] - qrs_locs[hk];
-      // var iso = ecg_data[Math.ceil((qrs_locs[hk] + qrs_locs[hk + 1]) / 2)];
       var segment = [];
       var test_segment = [];
       var start_ind = 0.12;  // SWEET SPOT HERE, NOT TO CHANGE
@@ -231,7 +227,6 @@ app.service ('dsp', function() {
         start_ind = 0.12;
         end_ind = 0.65;
       };
-      // console.log("t_start:" + start_ind + "-t_end:" + end_ind);
       var index_to_start  = Math.ceil(start_ind * qrs_leng) + qrs_locs[hk];
       var index_to_end    = Math.floor(end_ind * qrs_leng) + qrs_locs[hk];
       for (var lm = index_to_start; lm < index_to_end; lm++) {
@@ -261,7 +256,7 @@ app.service ('dsp', function() {
           t_loc = Math.ceil((last_t_loc_1 + last_t_loc_2) / 2);
         }
       }
-      // console.log(t_loc);
+
       if (last_t_loc_1 && last_t_loc_2) {
         var diff_1 = Math.abs(t_loc - last_t_loc_1);
         var diff_2 = Math.abs(t_loc - last_t_loc_2);
@@ -277,14 +272,12 @@ app.service ('dsp', function() {
         last_t_loc_1 = t_loc;
         last_t_loc_2 = t_loc;
       };
-      // console.log(test_segment[t_loc]);
+
       t_loc = t_loc + index_to_start + delay_after_magnify;
-      // console.log(ecg_data[t_loc] + " " + iso);
       // REMOVE EFFECT OF PPG
-      // if (ecg_data[t_loc] < ecg_data[t_loc + 10] && ecg_data[t_loc] < ecg_data[t_loc - 10]) {    // Check if trending is downward, most likely a minima
       if (ecg_data[t_loc] < iso) {
         var peak_locs = this.find_peaks(test_segment);
-        // console.log(peak_locs);
+
         var maximum_peak = iso;      // New candiadate must be a maxima and higher than iso
         var maximum_peak_ind = null;
         for (var ind = 0; ind < peak_locs.length; ind++) {
@@ -293,7 +286,7 @@ app.service ('dsp', function() {
             maximum_peak_ind = peak_locs[ind];
           };
         };
-        // console.log(maximum_peak_ind);
+
         if (maximum_peak_ind) {
           var value = Math.abs(maximum_peak_ind / last_maximum_peak_ind);
           if (value < 0.25 || value > 4) {
@@ -307,8 +300,7 @@ app.service ('dsp', function() {
       };
       // IMPORTANT, NOT TO CHANGE
       var global_ind = maximum_peak_ind + index_to_start;
-      // console.log(global_ind);
-      // console.log(ecg_data[t_loc] + " " + iso + " " + ecg_data[global_ind]);
+   
       var mag_1 = ecg_data[t_loc] - iso;
       var mag_2 = ecg_data[global_ind] - iso;
       var value_1 =  Math.abs(mag_2 / mag_1);
@@ -318,7 +310,7 @@ app.service ('dsp', function() {
       // END OF REMOVE EFFECT OF PPG
       // REVERSE ENGINEERING FOR T_AMPLITUDE
       t_amplitude = ecg_data[t_loc] - iso;
-      // console.log(ecg_data[t_loc] + "-" + iso);
+
       if (!t_amplitude) {
         if (last_t_val_1 && last_t_val_2) {
           t_amplitude = Math.ceil((last_t_val_1 + last_t_val_2) / 2);
@@ -371,13 +363,12 @@ app.service ('dsp', function() {
       var qrs = ecg_data[qrs_locs[hk] + delay_of_qrs];
       var iso = ecg_data[qrs_locs[hk] + delay_of_iso];
       if (iso < -500) { iso = 0; };
-      // var iso = ecg_data[(Math.ceil(qrs_locs[hk] + qrs_locs[hk + 1]) / 2)];
+
       var qrs_amplitude = Math.abs(qrs - iso);
       var rt_length = t_locs[hk] - qrs_locs[hk];
       var st_index_start = Math.ceil(rt_length / 3) + qrs_locs[hk] + delay_of_qrs;
       var st_index_end = Math.ceil(rt_length / 3 * 2.1) + qrs_locs[hk] + delay_of_qrs;
-      // var st_index_start = Math.ceil(rt_length / 10 * 2) + qrs_locs[hk] + delay_of_qrs;
-      // var st_index_end = Math.ceil(rt_length / 10 * 6) + qrs_locs[hk] + delay_of_qrs;
+    
       for (var lm = st_index_start; lm < st_index_end; lm++) {
         std += (ecg_data[lm] - iso);
       };
@@ -388,13 +379,13 @@ app.service ('dsp', function() {
           std = Math.ceil((last_std_val_1 + last_std_val_2) / 2);
         };
       };
-      // console.log(std);
+
       if (last_std_val_1 && last_std_val_2) {
         var diff_1 = Math.abs(std - last_std_val_1);
         var diff_2 = Math.abs(std - last_std_val_1);
         var tich_1 = std * last_std_val_1;
         var tich_2 = std * last_std_val_2;
-        // console.log(tich_1);
+
         if (((diff_1 / last_std_val_1 > 2.5 || diff_2 / last_std_val_2 > 2.5) || ((tich_1 < 0 && tich_2 < 0) && (Math.abs(diff_1 / std) > 3 || Math.abs(diff_2 / std) > 3)))) {
           std = Math.floor((last_std_val_1 + last_std_val_2) / 2);
           last_std_val_2 = last_std_val_1;
@@ -407,7 +398,7 @@ app.service ('dsp', function() {
         last_std_val_1 = std;
         last_std_val_2 = std;
       };
-      // console.log(std);
+
       std_bin.push(std);
     };
     return std_bin;
