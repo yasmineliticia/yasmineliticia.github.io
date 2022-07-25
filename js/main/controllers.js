@@ -148,12 +148,12 @@ var app = angular.module("app")
     $scope.view_this_signal = function(record) {
       var index = $scope.records.indexOf(record);
       $window.localStorage["cassandra_command_lab_to_run_this_signal"] = JSON.stringify($scope.records[index]);
-      $window.open("laboratory.html", "_blank", 'width=1260,height=760');
+      $window.open("visualization.html", "_blank", 'width=1260,height=760');
     };
     $scope.analize_this_signal = function(record) {
       var index = $scope.records.indexOf(record);
       $window.localStorage["ECG_command_analysis_to_run_this_signal"] = JSON.stringify($scope.records[index]);
-      $window.open("analysis_2.html", "_blank", 'width=1260,height=760');
+      $window.open("analysis.html", "_blank", 'width=1260,height=760');
     };
     $scope.delete_this_record = function(index) {
       if (confirm("Delete record " + $scope.records[index].name + "?")) {
