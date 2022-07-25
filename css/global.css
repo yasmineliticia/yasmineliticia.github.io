@@ -9,14 +9,14 @@
   }
   /** la couleur du fond **/
   body {
-	background: White;
+	background: #3468af;
 }
    
 h2 {
 	font-size: 17px;
 }
  h2, span{
-	  color: white;
+	  color: #fff;
   }
 	  
   
