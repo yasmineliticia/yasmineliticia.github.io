@@ -9,7 +9,7 @@
   }
   /** la couleur du fond **/
   body {
-	background: #e1c7ae;
+	background: white;
 }
    
 h2 {
@@ -26,7 +26,7 @@ h2 {
 	margin-left: 20px;
 	margin-bottom: 20px;
 	padding-left: 45px;
-	background: #50597b;
+	background: white;
 	color: white;
 }
 
