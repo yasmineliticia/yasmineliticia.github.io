@@ -16,7 +16,7 @@
                 <input on-read-file="importPackageFromTextFile($fileContent)" id="file-upload" type="file"/>
                 <span style="width:100%;display:inline-block;float:left;text-align:center;margin-top:18px;">
                   <i class="fa fa-pencil-square-o" aria-hidden="true" style="margin-right:3px;font-size:13px;"></i>
-                  Or past data here:
+                  Or paste data here:
                 </span>
                 <textarea required ng-change="update_ecg_data_and_duration()" class="sub-section" style="height:232px;margin-top:18px;" ng-model="file_content"></textarea>
                 <span style="width:100%;display:inline-block;float:left;text-align:left;margin:16px 0px;font-size:13px;padding-left:2px;">
@@ -42,14 +42,14 @@
                   <input required type="text" class="sub-section" placeholder="Record name..." ng-model="record_date" value="{{record_date}}" style="width:120px;border-top-left-radius:0px;border-bottom-left-radius:0px;" disabled>
                 </div>
 
-                <div class="collum" style="width:100%;float:left;margin-top:-8px;padding-right:4px;">
+                <!--<div class="collum" style="width:100%;float:left;margin-top:-8px;padding-right:4px;">
                   <span style="width:100%;display:inline-block;float:left;text-align:left;margin:13px 0px;font-size:16px;padding-left:2px;">
                     <i class="fa fa fa-pencil" aria-hidden="true" style="margin-right:2px;"></i>
                     Comments:
                   </span>
                   <input required type="text" class="sub-section" placeholder="Record comments..." ng-model="record_comment" style="width:100%;">
                 </div>
-
+-->
                 <div class="collum" style="width:80%;float:left;margin-top:-8px;">
                   <span style="width:100%;display:inline-block;float:left;text-align:left;margin:13px 0px;font-size:16px;padding-left:2px;">
                     <i class="fa fa fa-key" aria-hidden="true" style="margin-right:2px;"></i>
@@ -98,16 +98,16 @@
     <div class="sk-circle11 sk-child"></div>
     <div class="sk-circle12 sk-child"></div>
   </div>
-  <div style="height:calc(100vh - 90px);overflow:hidden;padding-right:4px;width:320px;float:left;display:inline-block;">
+ <!-- <div style="height:calc(100vh - 90px);overflow:hidden;padding-right:4px;width:320px;float:left;display:inline-block;">
     <div class="loading block" style="padding-right:20px;padding-left:20px;padding-top:10px;padding-bottom:10px;height:200px;margin-top:0px;"> <!-- LOADING (RIGHT-CONTAINER) -->
-        <h2 style="width:100%;display:inline-block;text-align:center;margin-bottom:20px;">STORAGE USE</h2>
+        <!--<h2 style="width:100%;display:inline-block;text-align:center;margin-bottom:20px;">STORAGE USE</h2>
         <div class="progress-bar downloading" style="width:100%;"></div>
         <p style="margin-top:11px;">Local: 2GB</p>
         <p class="percentage">81%</p>
         <div class="progress-bar uploading" style="width:100%;"></div>
         <p style="margin-top:11px;">Online: 200MB</p>
         <p class="percentage">43%</p>
-    </div>
+    </div>-->
     <div class="donut-chart-block block" style="height:calc(100vh - 307px);padding:0px;position:relative;overflow:hidden;margin-top:-3px;max-height:400px;">
         <h2 class="titular overflow-3dot" style="margin-top:-14px;padding-left:4px;padding-right:4px;">{{selected_record.name}}</h2>
         <div class="ct-chart" style="width:330px;height:calc(100% - 140px);margin-left:-4px;margin-top:-23px;"></div>
