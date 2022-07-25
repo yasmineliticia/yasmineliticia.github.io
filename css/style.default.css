@@ -12,10 +12,10 @@ body {
   font-weight: bold;
 }
 .bouton a {
-  color: white;
+  color: FireBrick;
   text-decoration: none;
 }
 .bouton a:hover {
 	color: #ffffff;
-  background-color: white;
+  background-color: FireBrick;
 }
