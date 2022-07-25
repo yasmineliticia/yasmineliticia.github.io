@@ -1,0 +1,172 @@
+<html ng-app="app" ng-controller="laboratoryController">
+<head>
+  <title>ECG</title>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap_grid.css">
+  <link rel="stylesheet" type="text/css" href="css/global.css">
+  <link rel="stylesheet" type="text/css" href="lib/chartist/chartist.css">
+  <link rel="stylesheet" type="text/css" href="lib/chartist/chartist-for-analysis.css">
+</head>
+<body style="overflow:hidden;" class="ng-cloak">
+    <div id="divMain" class="main-container container-fluid" style="width:100vw;height:100vh;position:fixed;color:white;top:0px;left:0px;padding-bottom:0px;;">
+      <div id="data_view" class="lab_view window_drag" style="z-index:0;width:100%;margin-top:4px;height:calc(100vh + 16px);overflow:scroll;position:fixed;top:0px;padding-top:0px;padding-bottom:0px;">
+        <div class="window_drag" style="height:16px;width:100%;display:inline-block;"></div>
+        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12 window_drag" style="padding:0px 0px 0px 12px;">
+          <div class="col-md-12 window_drag" style="background-color:transparent;width:100%;float:left;margin-top:0px;margin-bottom:10px;padding:0px;height:46px;">
+              <button ng-click="export_this_analysis_as_pdf_report()" type="submit" class="sign-in button window_no_drag" style="border:none;color:white;cursor:pointer;height:46px;border-radius:2px;line-height:36px;font-size:14px;float:center;width:48%;margin-top:0px;">
+                <i class="fa fa-cloud-upload" aria-hidden="true" style="margin-right:2px;"></i>
+                Print Preview
+              </button>
+             
+          </div>
+          <div class="menu-box block window_no_drag" style="background-color:transparent;height:auto;padding-bottom:0px;margin-top:60px;position:relative;"> <!-- MENU BOX (LEFT-CONTAINER) -->
+              <div class="donut-chart-block block window_no_drag" style="background-color:rgba(57,66,100,0.92);height:calc(50% - 10px);padding:0px;position:relative;overflow:hidden;margin-top:-3px;max-height:400px;width:100%;">
+                  <h2 class="overflow-3dot" style="margin-top:10px;width:90%;margin-left:5%;display:inline-block;text-align:center;font-weight:bold;">STATISTICS</h2>
+                  <div id="statistic_chart" class="ct-chart" style="width:calc(100% - 110px);height:calc(100% - 110px);margin-left:calc(52px);margin-top:-12px;max-height:312px;"></div>
+                  <ul class="os-percentages horizontal-list" style="width:100%;height:84px;position:absolute;bottom:28px;">
+                      <li style="width:34%;display:inline-block;float:left;height:84px;margin-top:0px;background-color:transparent;border-color:transparent;">
+                          <p class="mac os scnd-font-color white_color" style="font-weight:bold;">Normal</p>
+                          <p class="os-percentage normal_color" style="font-weight:bold;">{{statistics_count[0]}}<sup>%</sup></p>
+                      </li>
+                      <li style="width:33%;display:inline-block;float:left;height:84px;background-color:transparent;border-color:transparent;">
+                          <p class="linux os scnd-font-color white_color" style="font-weight:bold;">Caution</p>
+                          <p class="os-percentage caution_color" style="font-weight:bold;">{{statistics_count[1]}}<sup>%</sup></p>
+                      </li>
+                      <li style="width:33%;display:inline-block;float:left;height:84px;background-color:transparent;border-color:transparent;">
+                          <p class="ios os scnd-font-color white_color" style="font-weight:bold;">Danger</p>
+                          <p class="os-percentage danger_color" style="font-weight:bold;">{{statistics_count[2]}}<sup>%</sup></p>
+                      </li>
+                  </ul>
+              </div>
+              <div class="block block-general window_no_drag" style="background-color:rgba(57,66,100,0.92);width:100%;padding-bottom:0px;cursor:pointer;margin-top:-4px;height:calc(50% - 93px);overflow:hidden;padding:0px;">
+                <div style="height:calc(100% - 50px);width:100%;padding:10px 6px 10px 10px;width:100%;overflow:hidden;">
+                  <div id="div_chat_content" style="height:100%;overflow:scroll;overflow-x:hidden;width:100%;">
+                    <span style="width:100%;display:inline-block;float:left;font-family:Montserrat;font-size:14px;margin-bottom:12px;">1. Beat count:</span>
+                    <div ng-repeat="ann in annotations_statistic | orderBy:'count':true" style="margin-bottom:1px;width:100%;float:left;display:inline-block;height:20px;">
+                      <div style="width:38px;float:left;display:inline-block;height:28px;font-size:13px;font-family:Montserrat;line-height:20px;text-align:right;padding-right:6px;font-weight:bold;">
+                        <span style="color:{{ann.color}}">{{ann.text}}</span>
+                      </div>
+                      <div style="width:calc(100% - 38px);display:inline-block;height:20px;">
+                        <div style="width:{{ann.percentage}}%;display:inline-block;background-color:{{ann.color}};height:20px;margin-top:0px;font-size:12px;font-family:Montserrat;line-height:20px;text-align:center;min-width:12px;border-radius:4px;">
+                          {{ann.count}}
+                        </div>
+                      </div>
+                    </div>
+                    <span style="width:100%;display:inline-block;float:left;font-family:Montserrat;font-size:14px;margin-top:14px;">2. Notes:</span>
+                    <p ng-repeat="message in chat_messages" style="width:100%;float:left;display:inline-block;margin:0px;">
+                      <span style="{{message.style}};font-size:16px;font-weight:700;">{{message.name}}: </span>
+                      <span style="font-size:16px;" ng-bind-html="message.content"></span>
+                    </p>
+                  </div>
+                </div>
+                <div id="div_chat_input" style="height:60px;;width:100%;">
+                  <form ng-submit="insert_chat_message(message_content)">
+                    <span class="icon entypo-paper-plane scnd-font-color scnd-font-color" style="position:absolute;margin-top:15px;margin-left:10px;font-size:18px;font-weight:800;"></span>
+                    <input ng-model="message_content" type="text" placeholder="Add some notes here..." style="width:100%;margin-left:0px;padding:0px 10px 0px 35px;border-radius:4px;">
+                    <button type="submit" style="display:none;">Submit</button>
+                  </form>
+                </div>
+              </div>
+          </div>
+        </div>
+        <div id="width_of_this_one" class="col-lg-9 col-md-12 col-sm-12 col-xs-12 window_drag" style="padding:0px 0px 0px 10px;">
+          <div class="main-container window_no_drag" style="width:100%;min-width:600px;">
+            <div class="block block-general window_no_drag" style="background-color:rgba(57,66,100,0.72);width:100%;padding:10px 10px 10px 10px;position:relative;height:calc(48% - 45px);overflow:hidden;border-bottom-left-radius:0px;border-bottom-right-radius:0px;">
+              <h2 class="titular" style="position:absolute;top:0px;height:30px;line-height:30px;width:100%;display:inline-block;">
+                <input type="checkbox" ng-model="show_ecg_chart" style="margin-top:8px;float:left;display:inline-block;"/>
+                <span style="opacity:1;margin-top:0px;float:left;display:inline-block;margin-right:12px;;color:#00B0FF;font-weight:800;font-family:Montserrat;margin-top:-2px;">ECG1</span>
+                <input type="checkbox" ng-model="window_leng_all" ng-change="select_window_leng_all()" style="opacity:1;margin-top:7px;float:left;display:inline-block;float:right;margin-right:26px;font-weight:600;"/>
+                <span style="opacity:1;margin-top:0px;float:left;display:inline-block;color:white;font-weight:lighter;float:right;font-size:14px;font-family:Montserrat;margin-top:-2px;">All</span>
+                <input type="checkbox" ng-model="window_leng_30s" ng-change="select_window_leng_30s()" style="opacity:1;margin-top:7px;float:left;display:inline-block;float:right;margin-right:26px;font-weight:600;"/>
+                <span style="opacity:1;margin-top:0px;float:left;display:inline-block;color:white;font-weight:lighter;float:right;font-size:14px;font-family:Montserrat;margin-top:-2px;">30s</span>
+                <input type="checkbox" ng-model="window_leng_10s" ng-change="select_window_leng_10s()" style="opacity:1;margin-top:7px;float:left;display:inline-block;float:right;margin-right:26px;font-weight:600;"/>
+                <span style="opacity:1;margin-top:0px;float:left;display:inline-block;color:white;font-weight:lighter;float:right;font-size:14px;font-family:Montserrat;margin-top:-2px;">10s</span>
+                <input type="checkbox" ng-model="window_leng_4s" ng-change="select_window_leng_4s()" style="opacity:1;margin-top:7px;float:left;display:inline-block;float:right;margin-right:26px;font-weight:600;"/>
+                <span style="opacity:1;margin-top:0px;float:left;display:inline-block;color:white;font-weight:lighter;float:right;font-size:14px;font-family:Montserrat;margin-top:-2px;">4s</span>
+              </h2>
+              
+              <div id="ecg_chart_label" ng-show="show_ecg_chart" class="ct-chart block-general" style="width:100%;top:31px;position:absolute;left:-10px;height:calc(100% - 6px);bottom:0px;"></div>
+              <div id="ecg_chart_container" style="width:calc(100% - 66px);top:26px;position:absolute;left:41px;overflow-x:hidden;overflow-y:hidden;height:calc(100% - 6px);">
+                <div id="ecg_chart" ng-show="show_ecg_chart" class="ct-chart block-general" style="width:calc({{window_percentage}}% + 60px);top:0px;position:relative;margin-left:-60px;"></div>
+                <div ng-show="show_ecg_chart && should_show_ecgchart_timeline" class="ct-chart block-general" style="width:calc({{window_percentage}}% + 60px);bottom:18px;position:absolute;left:0px;border-top:1px solid steelblue;">
+                  <span ng-repeat="value in record_length_in_seconds_arr track by $index" style="width:{{ecgchart_length_of_1s_in_pixel}}px;position:relative;font-size:13px;color:steelblue;opacity:0.9;float:left;display:inline-block;border-left:1px solid steelblue;padding-left:4px;">
+                    {{$index}}s
+                  </span>
+                </div>
+                <div style="width:calc({{window_percentage}}% + 120px);top:-12px;position:absolute;margin-left:0px;font-size:14px;">
+                  <div ng-repeat="ann in annotations" style="left:{{ann.left}}px;position:absolute;top:12px;">
+                    <div class="tooltip">
+                      <span style="color:{{ann.color}};">{{ann.text}}</span>
+                      <span class="tooltiptext" ng-bind-html="ann.tooltip"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="block block-general window_no_drag" style="background-color:rgba(57,66,100,0.72);width:100%;padding:10px 10px 0px 10px;margin-top:-15px;position:relative;height:calc(26% + 5px);overflow:hidden;border-radius:0px;">
+              <div id="heartrate_chart" ng-show="show_heartrate_chart" class="block-general" style="width:calc(100% + 0px);top:26px;position:absolute;left:-10px;"></div>
+              <div id="heartrate_chart2" class="block-general" style="width:calc(100% + 0px);top:26px;position:absolute;left:-10px;"></div>
+              <div id="variability_chart" ng-show="show_variability_chart" class="block-general" style="width:calc(100% + 0px);top:26px;position:absolute;left:-10px;"></div>
+              <div class="chart_spanner_container" style="width:calc(100% - 66px);height:100%;background-color:transparent;position:absolute;top:8px;left:40px;overflow:hidden;">
+                <div data-draggable="true" class="chart_spanner" style="width:{{chart_spanner_width}}%;height:calc(100% - 50px);background-color:#BDBDBD;position:relative;top:30px;left:{{chart_spanner_position}}%;opacity:0.54;cursor:move;"></div>
+              </div>
+              <h2 class="titular" style="position:absolute;top:0px;height:30px;line-height:30px;width:100%;display:inline-block;">
+                <input type="checkbox" ng-model="show_heartrate_chart" style="margin-top:9px;float:left;display:inline-block;"/>
+                <span style="margin-top:0px;float:left;display:inline-block;margin-right:12px;;color:rgb(244,198,61);font-weight:bold;font-family:Montserrat;">HR</span>
+                <input type="checkbox" ng-model="show_variability_chart" style="margin-top:9px;float:left;display:inline-block;float:right;margin-right:20px;"/>
+                <span style="margin-top:0px;float:left;display:inline-block;color:rgb(255,127,39);font-weight:bold;float:right;font-family:Montserrat;">HRV</span>
+              </h2>
+              <div class="ct-chart block-general" style="width:calc(100% - 66px);bottom:0px;position:absolute;left:38px;border-top:1px solid steelblue;margin-left:2px;margin-top:1px;">
+                <span ng-repeat="value in secondarychart_intervals" style="width:12.5%;position:relative;font-size:11px;color:steelblue;opacity:0.9;float:left;display:inline-block;border-left:1px solid steelblue;padding-left:4px;">
+                  {{value}}s
+                </span>
+                <span style=";position:absolute;font-size:11px;color:steelblue;opacity:0.9;right:0px;display:inline-block;bottom:1px;">
+                  {{record_length_in_seconds}}s
+                </span>
+              </div>
+            </div>
+            <div class="block block-general window_no_drag" style="background-color:rgba(57,66,100,0.72);width:100%;padding:10px 10px 0px 10px;margin-top:-15px;position:relative;height:calc(26% + 5px);overflow:hidden;border-top-left-radius:0px;border-top-right-radius:0px;padding-bottom:6px;">
+              <div id="tmag_chart" ng-show="show_tmag_chart" class="block-general" style="width:calc(100% + 0px);top:26px;position:absolute;left:-10px;"></div>
+              <div id="stdeviation_chart" ng-show="show_stdeviation_chart" class="block-general" style="width:calc(100% + 0px);top:26px;position:absolute;left:-10px;"></div>
+              <div class="chart_spanner_container" style="width:calc(100% - 66px);height:100%;background-color:transparent;position:absolute;top:8px;left:40px;overflow:hidden;">
+                <div data-draggable="true" class="chart_spanner" style="width:{{chart_spanner_width}}%;height:calc(100% - 56px);background-color:#BDBDBD;position:relative;top:30px;left:{{chart_spanner_position}}%;opacity:0.54;cursor:move;"></div>
+              </div>
+              <h2 class="titular" style="position:absolute;top:0px;height:30px;line-height:30px;width:100%;display:inline-block;">
+                <input type="checkbox" ng-model="show_tmag_chart" style="margin-top:9px;float:left;display:inline-block;"/>
+                <span style="margin-top:0px;float:left;display:inline-block;margin-right:12px;;color:#00BFA5;font-weight:bold;font-family:Montserrat;">T-MAG</span>
+                <input type="checkbox" ng-model="show_stdeviation_chart" style="margin-top:9px;float:left;display:inline-block;float:right;margin-right:20px;"/>
+                <span style="margin-top:0px;float:left;display:inline-block;color:#FF80AB;font-weight:bold;float:right;font-family:Montserrat;">STD</span>
+              </h2>
+              <div class="ct-chart block-general" style="width:calc(100% - 66px);bottom:6px;position:absolute;left:38px;border-top:1px solid steelblue;margin-left:2px;margin-top:1px;">
+                <span ng-repeat="value in secondarychart_intervals" style="width:12.5%;position:relative;font-size:11px;color:steelblue;opacity:0.9;float:left;display:inline-block;border-left:1px solid steelblue;padding-left:4px;">
+                  {{value}}s
+                </span>
+                <span style=";position:absolute;font-size:11px;color:steelblue;opacity:0.9;right:0px;display:inline-block;bottom:1px;">
+                  {{record_length_in_seconds}}s
+                </span>
+              </div>
+            </div>
+          </div> <!-- end main-container -->
+        </div>
+      </div>   
+    </div>
+
+    <script src="lib/jquery/jquery.min.js"></script>
+    <script>
+      try {
+          $ = jQuery = module.exports;
+      } catch(e) {}
+    </script>
+    <script src="lib/jqueryDraggable/jqueryDraggable.min.js"></script>
+    <script>
+      jQuery("#smallPopup_uploadRecord").tinyDraggable({ handle: '.header' });
+    </script>
+    <script src="lib/chartist/chartist.min.js"></script>
+    <script src="lib/socket-io-client/socket.io.js"></script>
+    <script src="lib/angular/angular.min.js"></script>
+    <script src="lib/angular/angular-route.min.js"></script>
+    <script src="lib/angular/angular-sanitize.js"></script>
+    <script src="lib/filesaver/angular-file-saver.bundle.min.js"></script>
+    <script src="js/analysis/analysis_2.js"></script>
+    <script src="js/analysis/analysis_controller_2.js"></script>
+</body>
+</html>

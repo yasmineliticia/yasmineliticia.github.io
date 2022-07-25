@@ -1,0 +1,38 @@
+<html ng-app="app" ng-controller="mainController">
+<head>
+  <title>ECG</title>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap_grid.css">
+  <link rel="stylesheet" type="text/css" href="css/global.css">
+  <link rel="stylesheet" type="text/css" href="lib/chartist/chartist-for-home.css">
+  <link rel="stylesheet" type="text/css" href="lib/font-awesome/font-awesome.min.css">
+</head>
+<body>
+ <div id="divLogin"></div>
+
+<div id="divMain" class="main-container container-fluid" style="width:100vw;height:100vh;position:fixed;color:white;top:0px;left:0px;display:none;background-color:rgba(31, 37, 61, 0.81);">
+  <header id="header_bar" style="width:100%;display:inline-block;height:40px;">
+  </header>
+  <div style="margin-top:4px;">
+    <div id="rightCollumn" class="block-general col-md-12 col-lg-9" style="width:calc(100vw - 308px);position:absolute;left:200px;">
+        <ng-view></ng-view>
+    </div>
+  </div>
+ </div>
+
+    <script src="lib/jquery/jquery.min.js"></script>
+    <script>
+      try {
+          $ = jQuery = module.exports;
+      } catch(e) {}
+    </script>
+    <script src="lib/jqueryDraggable/jqueryDraggable.min.js"></script>
+    <script src="lib/chartist/chartist.min.js"></script>
+    <script src="lib/socket-io-client/socket.io.js"></script>
+    <script src="lib/angular/angular.min.js"></script>
+    <script src="lib/angular/angular-route.min.js"></script>
+    <script src="lib/angular/angular-sanitize.js"></script>
+    <script src="lib/filesaver/angular-file-saver.bundle.min.js"></script>
+    <script src="js/main/app.js"></script>
+    <script src="js/main/controllers.js"></script>
+</body>
+</html>

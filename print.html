@@ -1,0 +1,422 @@
+<html ng-app="app" ng-controller="printController">
+	<head>
+		
+		<title>Print Review</title>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap_grid.css">
+		<link rel="stylesheet" type="text/css" href="lib/gridster/jquery.gridster.css">
+		<link rel="stylesheet" type="text/css" href="css/global.css">
+		<link rel="stylesheet" type="text/css" href="lib/chartist/chartist-for-print.css">
+		<link rel="stylesheet" type="text/css" href="css/sheets-of-paper.css">
+	</head>
+	<body class="document">
+		<div class="page">
+			<div class="page_section">
+				<label class="page_title primary_color" contenteditable="true" style="font-weight:500;">ELECTROCARDIOGRAM TEST REPORT</label>
+				<label class="page_title" style="font-size:13px;font-family:Open Sans;margin-top:6px;" contenteditable="true">Date: Sep 12th, 2022</label>
+			</div>
+			<div class="page_section">
+				<header style="margin-bottom:6px;">1. Patient Information:</header>
+				<div class="page_devision" style="width:calc(100% - 240px);">
+					<table style="width:100%;">
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Full name:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">Yasmine Liticia Elghandja</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Address:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">Bab Ezzouar, Algeria</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Email:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">yasmineelghandja@gmail.com</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Telephone:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">+213559080150</label>
+						</tr>
+						
+					</table>
+				</div>
+				<div class="page_devision" style="width:240px;">
+					<table style="width:100%;">
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Sex:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">Female</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Age:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">22</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Height:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">168 cm</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Weight:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">60 kg</label>
+						</tr>
+						
+					</table>
+				</div>
+				<div class="page_devision" style="width:calc(100% - 18px);margin-right:0px;margin-top:20px;padding:10px 20px 16px 10px;border:1px solid black;float:right;">
+					<table style="width:100%;">
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Symptoms:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">Fever, Chest pain ...</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Medication:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">Insuline</label>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="page_section">
+				<header style="margin-bottom:6px;">2. Doctor Information:</header>
+				<div class="page_devision" style="width:calc(100%-240px);margin-top:0px;">
+					<table style="width:100%;">
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Fullname:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">Dr. Samia Haddadi</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Workplace:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">CHU Hospital, Algiers, Algeria</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Department:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">Cardiology</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Email:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">samiahaddadi@gmail.com</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Telephone:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">+213589682354</label>
+						</tr>
+					</table>
+				</div>
+				<div class="page_devision" style="width:calc(100% - 18px);margin-right:0px;margin-top:20px;padding:10px 20px 16px 10px;border:1px solid black;float:right;">
+					<table style="width:100%;">
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Diagnosis:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">ARRHYTHMIA</label>
+						</tr>
+						<tr>
+							<td class="table-cell-title"><label class="print-standard-text" style="text-align:right;" contenteditable="true">Indicators:</label></td>
+							<td class="table-cell-content"><label class="print-standard-text border-invisible-on-print" contenteditable="true">Fast heart rate (145 bpm)</label>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="page_section">
+				<header style="margin-bottom:12px;">3. Analysis Summary:</header>
+				<div class="page_devision" style="height:172px;width:50%;float:left;border:1px solid black;padding:0px;">
+					<label class="page_title" style="font-size:13px;font-family:Open Sans;font-weight:400;border-bottom:1px solid black;padding:6px;" contenteditable="true">GENERAL STATISTICS</label>
+					<table style="width:calc(100% - 10px);">
+						<tr>
+							<td class="table-cell-title" style="width:86px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Heart Rate:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 86px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">102 bpm</span>
+								</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="table-cell-title" style="width:86px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Heart Rate Variability:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 86px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">1.5 bpm</span>
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:86px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">T Wave Magnitude:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 86px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_caution">-42%</span>
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:86px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">ST Deviation:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 86px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_caution">-6%</span>
+								</label>
+							</td>
+					</table>
+				</div>
+				<div class="page_devision" style="height:172px;width:50%;float:left;border:1px solid black;margin-left:-1px;overflow:hidden;">
+					<label class="page_title" style="font-size:13px;font-family:Open Sans;font-weight:400;border-bottom:1px solid black;padding:6px;" contenteditable="true">TYPICAL WAVEFORM</label>
+					<div id="ecg_chart_typical" class="ct-chart block-general" style="width:110%;margin-left:calc(-10% + 4px);display:inline-block;"></div>
+				</div>
+			</div>
+		</div>
+		<div class="page">
+			<div class="page_section">
+				<header style="margin-bottom:12px;">4. Features Time Series:</header>
+				<div class="page_devision" style="height:172px;width:120px;float:left;border:1px solid black;padding:0px;">
+					<label class="page_title" style="font-size:14px;text-align:center;margin-top:6px;">HEART RATE</label>
+					<label class="page_title" style="font-size:12px;text-align:center;margin-bottom:6px;">(bpm)</label>
+					<table style="width:calc(100% - 10px);">
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Avg:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_caution">102</span> bpm
+								</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Min:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">78</span> bpm
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Max:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_caution">196</span> bpm
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Std:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_caution">84</span> bpm
+								</label>
+							</td>
+					</table>
+				</div>
+				<div class="page_devision" style="height:172px;width:calc(100% - 120px);float:left;border:1px solid black;margin-left:-1px;position:relative;padding-top:6px;">
+					<div id="heartrate_chart" class="ct-chart block-general" style="width:calc(100% + 24px);margin-left:calc(0% - 20px);display:inline-block;"></div>
+					<div style="width:calc(100% - 40px);bottom:11px;position:absolute;left:27px;margin-left:2px;margin-top:2px;">
+						<span ng-repeat="value in secondarychart_intervals" style="width:12.5%;position:relative;font-size:11px;color:steelblue;opacity:0.9;float:left;display:inline-block;">
+							{{value}}s
+						</span>
+						<span style=";position:absolute;font-size:11px;color:steelblue;opacity:0.9;right:0px;display:inline-block;bottom:1px;">
+							{{record_length_in_seconds}}s
+						</span>
+					</div>
+				</div>
+				<div class="page_devision" style="height:172px;width:120px;float:left;border:1px solid black;padding:0px;margin-top:-1px;">
+					<label class="page_title" style="font-size:14px;text-align:center;margin-top:6px;">HR VARIABILITY</label>
+					<label class="page_title" style="font-size:12px;text-align:center;margin-bottom:6px;">(bpm)</label>
+					<table style="width:calc(100% - 10px);">
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Avg:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">4.2</span> bpm
+								</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Min:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">8.3</span> bpm
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Max:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">3.1</span> bpm
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Std:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">1.8</span> bpm
+								</label>
+							</td>
+					</table>
+				</div>
+				<div class="page_devision" style="height:172px;width:calc(100% - 120px);float:left;border:1px solid black;margin-top:-1px;margin-left:-1px;position:relative;padding-top:6px;">
+					<div id="variability_chart" class="ct-chart block-general" style="width:calc(100% + 24px);margin-left:calc(0% - 20px);display:inline-block;"></div>
+					<div style="width:calc(100% - 40px);bottom:11px;position:absolute;left:27px;margin-left:2px;margin-top:2px;">
+						<span ng-repeat="value in secondarychart_intervals" style="width:12.5%;position:relative;font-size:11px;color:steelblue;opacity:0.9;float:left;display:inline-block;">
+							{{value}}s
+						</span>
+						<span style=";position:absolute;font-size:11px;color:steelblue;opacity:0.9;right:0px;display:inline-block;bottom:1px;">
+							{{record_length_in_seconds}}s
+						</span>
+					</div>
+				</div>
+				<div class="page_devision" style="height:172px;width:120px;float:left;border:1px solid black;padding:0px;margin-top:-1px;">
+					<label class="page_title" style="font-size:14px;text-align:center;margin-top:6px;">T MAGNITUDE</label>
+					<label class="page_title" style="font-size:12px;text-align:center;margin-bottom:6px;">(%)</label>
+					<table style="width:calc(100% - 10px);">
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Avg:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">21</span> %
+								</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Min:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">42</span> %
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Max:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">14</span> %
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Std:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">19</span> %
+								</label>
+							</td>
+					</table>
+				</div>
+				<div class="page_devision" style="height:172px;width:calc(100% - 120px);float:left;border:1px solid black;margin-top:-1px;margin-left:-1px;position:relative;padding-top:6px;">
+					<div id="tmag_chart" class="ct-chart block-general" style="width:calc(100% + 24px);margin-left:calc(0% - 20px);display:inline-block;"></div>
+					<div style="width:calc(100% - 40px);bottom:11px;position:absolute;left:27px;margin-left:2px;margin-top:2px;">
+						<span ng-repeat="value in secondarychart_intervals" style="width:12.5%;position:relative;font-size:11px;color:steelblue;opacity:0.9;float:left;display:inline-block;">
+							{{value}}s
+						</span>
+						<span style=";position:absolute;font-size:11px;color:steelblue;opacity:0.9;right:0px;display:inline-block;bottom:1px;">
+							{{record_length_in_seconds}}s
+						</span>
+					</div>
+				</div>
+				<div class="page_devision" style="height:172px;width:120px;float:left;border:1px solid black;padding:0px;margin-top:-1px;">
+					<label class="page_title" style="font-size:14px;text-align:center;margin-top:6px;">ST DEVIATION</label>
+					<label class="page_title" style="font-size:12px;text-align:center;margin-bottom:6px;">(%)</label>
+					<table style="width:calc(100% - 10px);">
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Avg:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">4.5</span> %
+								</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Min:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">3.2</span> %
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Max:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">7.8</span> %
+								</label>
+							</td>
+						<tr>
+							<td class="table-cell-title" style="width:42px;"><label class="print-standard-text" style="text-align:right;font-size:12px;line-height:16px;" contenteditable="true">Std:</label></td>
+							<td class="table-cell-content" style="width:calc(100% - 42px);">
+								<label class="print-standard-text border-invisible-on-print" contenteditable="true">
+									<span class="color_normal">2.1</span> %
+								</label>
+							</td>
+					</table>
+				</div>
+				<div class="page_devision" style="height:172px;width:calc(100% - 120px);float:left;border:1px solid black;margin-top:-1px;margin-left:-1px;position:relative;padding-top:6px;">
+					<div id="stdeviation_chart" class="ct-chart block-general" style="width:calc(100% + 24px);margin-left:calc(0% - 20px);display:inline-block;"></div>
+					<div style="width:calc(100% - 40px);bottom:11px;position:absolute;left:27px;margin-left:2px;margin-top:2px;">
+						<span ng-repeat="value in secondarychart_intervals" style="width:12.5%;position:relative;font-size:11px;color:steelblue;opacity:0.9;float:left;display:inline-block;">
+							{{value}}s
+						</span>
+						<span style=";position:absolute;font-size:11px;color:steelblue;opacity:0.9;right:0px;display:inline-block;bottom:1px;">
+							{{record_length_in_seconds}}s
+						</span>
+					</div>
+				</div>
+			</div>			
+		</div>
+		<div class="page" style="overflow:hidden;">
+			<div class="page_devision" style="width:calc(100% - 210px);">
+				<div class="page_section" id="insert_segment_charts_here">
+					<header style="margin-bottom:12px;">5. Waveform Data:</header>
+				</div>
+			</div>
+			<div class="page_devision" style="width:200px;float:right">
+				<div class="page_section" style="margin-bottom:0px;">
+					<header style="margin-bottom:12px;">6. Diagnosis Summary:</header>
+					<div class="page_devision" style="width:100%;">
+						<div class="donut-chart-block block window_no_drag" style="background-color:rgba(57,66,100,0.92);height:260px;padding:0px;position:relative;overflow:hidden;margin-top:-3px;max-height:400px;width:100%;">
+							<div id="statistic_chart" class="ct-chart" style="width:166px;height:166px;margin-left:calc(50% - 83px);margin-top:9px;"></div>
+								<ul class="os-percentages horizontal-list" style="width:100%;height:84px;position:absolute;bottom:28px;">
+									<li style="width:34%;display:inline-block;float:left;height:84px;margin-top:0px;background-color:transparent;border-color:transparent;">
+										<p class="mac os scnd-font-color white_color" style="font-weight:bold;font-size:13px;">Normal</p>
+										<p class="os-percentage normal_color" style="font-weight:bold;margin-top:-2px;font-family:Montserrat;font-weight:600;font-size:18px;">{{report_obj.record_statistics[0]}}<sup>%</sup></p>
+									</li>
+									<li style="width:33%;display:inline-block;float:left;height:84px;background-color:transparent;border-color:transparent;">
+										<p class="linux os scnd-font-color white_color" style="font-weight:bold;font-size:13px;">Caution</p>
+										<p class="os-percentage caution_color" style="font-weight:bold;margin-top:-2px;font-family:Montserrat;font-weight:600;font-size:18px;">{{report_obj.record_statistics[1]}}<sup>%</sup></p>
+									</li>
+									<li style="width:33%;display:inline-block;float:left;height:84px;background-color:transparent;border-color:transparent;">
+										<p class="ios os scnd-font-color white_color" style="font-weight:bold;font-size:13px;">Danger</p>
+										<p class="os-percentage danger_color" style="font-weight:bold;margin-top:-2px;font-family:Montserrat;font-weight:600;font-size:18px;">{{report_obj.record_statistics[2]}}<sup>%</sup></p>
+									</li>
+								</ul>
+						</div>
+					</div>
+				</div>
+				<div class="page_section">
+					<header style="margin-bottom:12px;" contenteditable="true">7. Beat Count: (beats)</header>
+					<div class="page_devision" style="width:100%;padding-left:0px;">
+							<div ng-repeat="ann in report_obj.record_annotations_statistic | orderBy:'count':true" style=";margin-bottom:2px;width:100%;float:left;display:inline-block;height:20px;">
+								<div style="width:38px;float:left;display:inline-block;height:28px;font-size:13px;font-family:Montserrat;line-height:20px;text-align:left;padding-right:6px;font-weight:bold;">
+									<span style="color:{{ann.color}};font-weight:500;">{{ann.text}}</span>
+								</div>
+								<div style="width:calc(100% - 38px);display:inline-block;height:20px;">
+									<div style="width:{{ann.percentage}}%;display:inline-block;background-color:{{ann.color}};height:20px;margin-top:0px;font-size:12px;font-family:Montserrat;line-height:20px;text-align:center;min-width:12px;border-radius:4px;color:white;">
+									{{ann.count}}
+									</div>
+								</div>
+							</div>
+							<label class="page_title" style="text-align:left;font-size:13px;margin-top:16px;margin-bottom:4px;">Annotation Labels:</label>
+							<div ng-repeat="ann in report_obj.record_annotations_statistic | orderBy:'count':true" style=";margin-bottom:2px;width:100%;float:left;display:inline-block;height:20px;">
+								<div style="width:38px;float:left;display:inline-block;height:28px;font-size:13px;font-family:Montserrat;line-height:20px;text-align:left;padding-right:6px;font-weight:bold;">
+									<span style="color:{{ann.color}};font-weight:500;">{{ann.text}}</span>
+								</div>
+								<div style="color:{{ann.color}};width:calc(100% - 38px);display:inline-block;height:20px;">
+									= {{ann.type}}
+								</div>
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="page" contenteditable="true">
+			<div class="page_section">
+				<header style="margin-bottom:12px;">8. Addtional Notes:</header>
+				<p style="font-size:13px;font-family:Open Sans;">Additional information...</p>
+			</div>		
+		</div>
+
+	
+		<script src="lib/jquery/jquery.min.js"></script>
+		<script>
+		try {
+			$ = jQuery = module.exports;
+		} catch(e) {}
+		</script>
+		<script src="lib/jqueryDraggable/jqueryDraggable.min.js"></script>
+		<script src="lib/chartist/chartist.min.js"></script>
+		<script src="lib/socket-io-client/socket.io.js"></script>
+		<script src="lib/angular/angular.min.js"></script>
+		<script src="lib/angular/angular-route.min.js"></script>
+		<script src="lib/angular/angular-sanitize.js"></script>
+		<script src="js/print/print.js"></script>
+		<script src="js/print/printController.js"></script>
+	</body>
+</html>
