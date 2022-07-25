@@ -1,6 +1,6 @@
 var app = angular.module("app")
-.controller("laboratoryController", ["$scope", "$http", "$rootScope", "$window", "printService", 'FileSaver', 'Blob', '$location', '$interval', 'dsp', '$timeout', function ($scope, $http, $rootScope, $window, printService, FileSaver, Blob, $location, $interval, dsp, $timeout) {
-  console.log("laboratory");
+.controller("visualizationController", ["$scope", "$http", "$rootScope", "$window", "printService", 'FileSaver', 'Blob', '$location', '$interval', 'dsp', '$timeout', function ($scope, $http, $rootScope, $window, printService, FileSaver, Blob, $location, $interval, dsp, $timeout) {
+  console.log("visualization");
   jQuery("#upload_record_popup").hide();
   // Down sampled ecg, fs = 40, used for plotting only
   var ecg_bin = [];
