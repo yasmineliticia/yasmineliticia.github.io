@@ -9,14 +9,14 @@
   }
   /** la couleur du fond **/
   body {
-	background: #1f253d;
+	background: OldLace;
 }
    
 h2 {
 	font-size: 17px;
 }
  h2, span{
-	  color: #fff;
+	  color: white;
   }
 	  
   
@@ -27,11 +27,11 @@ h2 {
 	margin-bottom: 20px;
 	padding-left: 45px;
 	background: #50597b;
-	color: #fff;
+	color: white;
 }
 
 input[type=text]::-webkit-input-placeholder {
-	color: #fff;
+	color: white;
 }
 
   .horizontal-list {
