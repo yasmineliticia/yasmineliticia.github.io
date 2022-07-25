@@ -1,569 +1,841 @@
-var app = angular.module("app", ['ngRoute', 'ngSanitize', 'ngFileSaver']);
-
-app.service("printService", function () {
-  var data = "random";
-  var saveProject = function (string) {
-    data = string;
+var app = angular.module("app")
+.controller("laboratoryController", ["$scope", "$http", "$rootScope", "$window", "printService", 'FileSaver', 'Blob', '$location', '$interval', 'dsp', '$timeout', function ($scope, $http, $rootScope, $window, printService, FileSaver, Blob, $location, $interval, dsp, $timeout) {
+  console.log("laboratory");
+  jQuery("#upload_record_popup").hide();
+  // Down sampled ecg, fs = 40, used for plotting only
+  var ecg_bin = [];
+  // Original ecg, fs predefined, used to store data
+  $scope.ecg_storage = [];
+  $scope.flag_from_receive_data_from_phone = 0;
+  $scope.cancel_custom_timeout = function() {
+    if ($scope.custom_timeout) {
+      $timeout.cancel($scope.custom_timeout);
+      $scope.custom_timeout = null;
+    };
   };
-  var exportProject = function () {
+  $scope.cancel_initiate_chart_interval = function() {
+    if ($scope.initiate_chart_interval) {
+      $interval.cancel($scope.initiate_chart_interval);
+      $scope.initiate_chart_interval = null;
+    };
+  };
+  $scope.cancel_resume_chart_update_interval = function() {
+    if ($scope.resume_chart_update_interval) {
+      $interval.cancel($scope.resume_chart_update_interval);
+      $scope.resume_chart_update_interval = null;
+    };
+  };
+  var random_data = function(number_of_point, scale) {
+    var data = [];
+    for (i = 0; i < number_of_point; i++) {
+      data.push(Math.random() * scale);
+    };
     return data;
   };
-  return {
-    set: saveProject,
-    return: exportProject
-  };
-});
 
-app.service ('dsp', function() {
-  this.moving_average = function(span, scale, data) {
-    var output = [];
-    if (scale == null) {
-      scale = 1;
+  $scope.local_server = {
+    name: "Local server",
+    link: "http://localhost:8000",
+  };
+  $scope.transaction_server = {
+    name: "Cassandra express server",
+    link: "http://103.15.51.249:1337",
+  };
+  $scope.update_duration = function() {
+    $scope.record_duration = Math.floor($scope.ecg_storage.length / ($scope.record_sampling_frequency) * 10) / 10;
+  };
+  $scope.ecg_data = [];
+  $scope.file_content = [];
+  $scope.record_name = "";
+  $scope.record_comment = "";
+  $scope.record_sampling_frequency = 100;
+  $scope.record_duration = Math.floor($scope.file_content.length / ($scope.record_sampling_frequency) * 10) / 10;
+  $scope.record_date = new Date();
+
+  var socket = io.connect($scope.local_server.link, { 'force new connection': true } );
+
+  var heroku_socket = io.connect($scope.transaction_server.link, { 'force new connection': true } );
+
+  var red_code = "#f05b4f";
+  // var orange_code = "#d17905";
+  var orange_code = "#FF9800";
+  var green_code = "#8BC34A";
+
+  if ($window.localStorage["cassandra_userInfo"]) {
+    $scope.userInfo = JSON.parse($window.localStorage["cassandra_userInfo"]);
+  };
+
+  $scope.status_pool = ["Normal", "Brady", "Tarchy", "AF", "Arryth", "Ische", "Stroke", "Deadly"];
+  var colors_pool = [green_code, orange_code, red_code];
+
+  $scope.initiate_variables = function() {
+    $scope.data_pointer = 0;
+    $scope.sampling_frequency = 80;    // 100 points per 1,000ms
+
+    $scope.heart_rate = "---";
+    $scope.variability = "---";
+    $scope.tmag = "---";
+    $scope.std_val = "---";
+    $scope.health = "-----";
+
+    $scope.heart_rate_condition = 0;
+    $scope.variability_condition = 0;
+    $scope.health_condition = 0;
+    $scope.tmag_condition = 0;
+    $scope.std_condition = 0;
+
+    $scope.heart_rate_color       = colors_pool[$scope.heart_rate_condition];
+    $scope.variability_color      = colors_pool[$scope.variability_condition];
+    $scope.health_color           = colors_pool[$scope.health_condition];
+    $scope.tmag_color             = colors_pool[$scope.tmag_condition];
+    $scope.std_color              = colors_pool[$scope.std_condition];
+
+    $scope.statistics_count = [0, 0, 0];
+  };
+  $scope.check_for_health_color = function() {
+    var value = 0;
+    var arr = [$scope.heart_rate_condition, $scope.variability_condition, $scope.tmag_condition, $scope.std_condition];
+    for (var loop = 0; loop < arr.length; loop++) {
+      if (arr[loop] > value) {
+        value = arr[loop];
+      };
     };
-    for (var i = 0; i < data.length - span; i++) {
-      var sum = data[i] * scale;
-      for (var k = 2; k <= span; k++) {
-        sum += data[i + k - 1];
-      };
-      var result = Math.floor(sum / (span + scale - 1));
-      if (result) {
-        output.push(result);
-      } else {
-        output.push(null);
-      };
+    return value;
+  };
+  $scope.initiate_window_settings = function() {
+    $scope.plot_speed = 40;             // 50 points per 1,000ms
+    $scope.tick_speed = Math.floor(1000 / $scope.plot_speed);
+    $scope.chart_pointer = 0;
+    $scope.window_span = 4;             // in seconds
+    $scope.window_leng = $scope.plot_speed * $scope.window_span;
+  };
+  var preprocess_signal = function(smooth_options, down_sampling_value, should_normalized, data) {
+    if (smooth_options) {
+      data = dsp.moving_average(smooth_options[0], smooth_options[1], data);
+    };
+    if (down_sampling_value) {
+      data = dsp.down_sampling(down_sampling_value, data);
+    };
+    if (should_normalized) {
+      data = dsp.perform_normalization(data);
     };
     return data;
   };
-  this.down_sampling = function(factor, data) {
-    factor = Math.round(factor);
-    if (factor <= 1) {
-      return data;
-    };
-    var result = [];
-    for (var i = 0; i < data.length - factor; i += factor) {
-      var value = 0;
-      for (var k = 1; k <= factor; k++) {
-        value += data[i + k - 1];
-      };
-      value = Math.floor(value / factor);
-      result.push(value);
-    };
-    return result;
-  };
-  this.magnify_maximum = function(data, baseline, power) {
-    var new_data = [];
-    if (baseline == null) {
-      baseline = 250;
-    };
-    if (power == null) {
-      power = 4;
-    };
-    for (var i = 1; i < data.length - 1; i++) {
-      if ((data[i] > data[i - 1]) && (data[i] > data[i + 1])) {
-        var value = Math.pow((Math.pow(data[i] - data[i - 1], power) + Math.pow(data[i] - data[i + 1], power)), 1 / power)  + baseline;
-        new_data.push(value);
-      } else {
-        new_data.push(baseline);
-      };
-    };
-    return new_data;
-  };
-  this.cal_mean = function(data) {
-    var sum = 0;
-    var deduce = 0;
-    for (var i = 0; i < data.length; i++) {
-      if (data[i]) {
-        sum += data[i];
-      } else {
-        deduce += 1;
-      };
-    };
-    return sum / (data.length - deduce);
-  };
-  this.cal_std = function(data) {
-    var mean = this.cal_mean(data);
-    var sum_of_sqrt = 0;
-    var deduce = 0;
-    for (var i = 0; i < data.length; i++) {
-      if (data[i]) {
-        sum_of_sqrt += Math.pow(data[i] - mean, 2);
-      } else {
-        deduce += 1;
-      };
-    };
-    return Math.sqrt(sum_of_sqrt / (data.length - deduce - 1));
-  };
-  this.find_max = function(data) {
-    var max = data[0];
-    for (var i = 0; i < data.length; i++) {
-      if (data[i] > max) {
-        max = data[i];
-      };
-    };
-    return max;
-  };
-  this.find_min = function(data) {
-    var min = data[0];
-    for (var i = 0; i < data.length; i++) {
-      if (data[i] < min) {
-        min = data[i];
-      };
-    };
-    return min;
-  };
-  this.find_peaks = function(data, min_peak_value, min_peak_distance) {
-    var peak_locs = [];
-    for (var i = 1; i < data.length - 1; i++) {
-      if ((data[i] > data[i - 1]) && (data[i] > data[i + 1])) {
-        peak_locs.push(i);
-      };
-    };
-    if (min_peak_value != null) {
-      var new_peak_locs = [];
-      for (var i = 0; i < peak_locs.length; i++) {
-        if (data[peak_locs[i]] >= min_peak_value) {
-          new_peak_locs.push(peak_locs[i]);
-        };
-      };
-      peak_locs = new_peak_locs;
-    };
-    if (min_peak_distance != null) {
-      var new_peak_locs = [peak_locs[0]];
-      var last_peak_index = peak_locs[0];
 
-      for (var i = 1; i < peak_locs.length; i++) {
-        if ((peak_locs[i] - last_peak_index) > min_peak_distance) {
-          new_peak_locs.push(peak_locs[i]);
-          last_peak_index = peak_locs[i];
-        };
-      };
-
-      peak_locs = new_peak_locs;
-    };
-    return peak_locs;
+  $scope.initiate_variables();
+  $scope.initiate_window_settings();
+  var chart_data = {
+    series: [
+      random_data($scope.window_leng, 800),
+    ]
   };
-  this.perform_normalization = function(data) {
-    var result = [];
-    var min_value = this.find_min(data);
-    if (min_value < 0) {
-      var value_to_add = Math.abs(min_value);
-      for (norm_1 = 0; norm_1 < data.length; norm_1++) {
-        result.push(data[norm_1] + value_to_add);
-      };
+  var create_chart_options = function(x_axis_ops, y_axis_ops, high_val, low_val) {
+    var obj = {
+      showPoint: false,
+      showArea: false,
+      fullWidth: true,
+      high: high_val,
+      low: low_val,
+      axisX: {
+        showGrid: x_axis_ops[0],
+        showLabel: x_axis_ops[1],
+      },
+      axisY: {
+        showGrid: y_axis_ops[0],
+        showLabel: y_axis_ops[1],
+      },
+      chartPadding: {
+        right: 20,
+        bottom: 0
+      },
     };
-    // Normalize here
-    var max_value = this.find_max(result);
-    for (norm_2 = 0; norm_2 < result.length; norm_2++) {
-      result[norm_2] = Math.floor(result[norm_2] / max_value * 1000);
-    };
-    return result;
+    return obj;
   };
-  this.create_threshold = function(points, value) {
-    var result = [];
-    for (var i = 0; i < points; i++) {
-      result.push(value);
+  var create_chart_options_without_highlow = function(x_axis_ops, y_axis_ops) {
+    var obj = {
+      showPoint: false,
+      showArea: false,
+      fullWidth: true,
+      axisX: {
+        showGrid: x_axis_ops[0],
+        showLabel: x_axis_ops[1],
+      },
+      axisY: {
+        showGrid: y_axis_ops[0],
+        showLabel: y_axis_ops[1],
+      },
+      chartPadding: {
+        right: 20,
+        bottom: 0
+      },
     };
-    return result;
+    return obj;
   };
-  this.qrs_detect = function(fs, data, baseline, power) {
-    var max_hr_hz = 3;       // around 180 bpm
-    if (baseline == null) {
-      baseline = 250;
+  var initiate_chart_data_first_time = function() {
+    chart_data_data = [];
+    for (var loop = 0; loop < $scope.window_leng; loop++) {
+      chart_data_data.push(0);
     };
-    if (power == null) {
-      power = 1;            // SWEET SPOT, NOT TO CHANGE
+    chart_data = {
+      series: [
+        chart_data_data,
+      ]
     };
-    data2 = this.magnify_maximum(data, baseline, power);
-    var min_peak_value = this.cal_mean(data2) + 1 * this.cal_std(data2);
-    var min_peak_distance = Math.floor(1 / max_hr_hz * fs);
-    try {
-      var qrs_locs = this.find_peaks(data2, min_peak_value, min_peak_distance);
-    } catch(err) {
-      return null;
-    };
-    return qrs_locs;
   };
-  var last_t_loc_1, last_t_loc_2;
-  var last_t_val_1, last_t_val_2;
-  var last_maximum_peak_ind;
-  this.t_peaks_detect = function(fs, ecg_data, qrs_locs, baseline, power) {
-    if (baseline == null) {
-      baseline = 250;
-    };
-    if (power == null) {
-      power = 5;
-    };
-    if (qrs_locs == null) {
-      qrs_locs = this.qrs_detect(fs, ecg_data, baseline, power);
-    };
-    var t_peaks = [];
-    var t_locs = [];
-    for (var hk = 0; hk < qrs_locs.length; hk++) {
-      var delay_of_qrs = 1;
-      var delay_of_iso = -2;
-      var qrs = ecg_data[qrs_locs[hk] + delay_of_qrs];
-      var iso = ecg_data[qrs_locs[hk] + delay_of_iso];
-      if (iso < -500) { iso = 0; };
-      var qrs_amplitude = Math.abs(qrs - iso);
-      var qrs_leng = qrs_locs[hk + 1] - qrs_locs[hk];
-      var segment = [];
-      var test_segment = [];
-      var start_ind = 0.12;  // SWEET SPOT HERE, NOT TO CHANGE
-      var end_ind = 0.6;     // SWEET SPOT HERE, NOT TO CHANGE
-      // IMPROVE: REMOVE EFFECT OF PPG
-      if (qrs_leng < 15) {          // Higher than 160 bpm
-        start_ind = 0.05;
-        end_ind = 0.75;
-      } else if (qrs_leng < 20) {   // Higher than 120 bpm
-        start_ind = 0.06;
-        end_ind = 0.65;
-      } else if (qrs_leng < 30) {   // Higher than 80 bpm
-        start_ind = 0.08;
-        end_ind = 0.60;
-      } else if (qrs_leng < 40) {   // Higher than 60 bpm
-        start_ind = 0.12;
-        end_ind = 0.60;
-      } else {                      // Lower than 60 bpm
-        start_ind = 0.12;
-        end_ind = 0.65;
-      };
-      var index_to_start  = Math.ceil(start_ind * qrs_leng) + qrs_locs[hk];
-      var index_to_end    = Math.floor(end_ind * qrs_leng) + qrs_locs[hk];
-      for (var lm = index_to_start; lm < index_to_end; lm++) {
-        var value = ecg_data[lm] - iso;
-        segment.push(Math.abs(value));
-        test_segment.push(ecg_data[lm]);
-      };
-      // Improve code here
-      segment = this.magnify_maximum(segment, 0, 4);
-      var t_amplitude_abs, t_loc, t_amplitude;
-      var delay_after_magnify = 1;
-      var min_peak_value = this.cal_mean(segment) + 0.5 * this.cal_std(segment);
-      var min_peak_distance = 4;
-      try {
-        var possible_t_peaks = this.find_peaks(segment, min_peak_value);
-        t_loc = this.find_max(possible_t_peaks);
-      } catch(err) {
-        t_amplitude_abs = this.find_max(segment);
-        t_loc = segment.indexOf(t_amplitude_abs);
-      };
-      if (t_loc == undefined) {
-        t_amplitude_abs = this.find_max(segment);
-        t_loc = segment.indexOf(t_amplitude_abs);
-      };
-      if (t_loc < 2) {
-        if (last_t_loc_1 && last_t_loc_2) {
-          t_loc = Math.ceil((last_t_loc_1 + last_t_loc_2) / 2);
-        }
-      }
-
-      if (last_t_loc_1 && last_t_loc_2) {
-        var diff_1 = Math.abs(t_loc - last_t_loc_1);
-        var diff_2 = Math.abs(t_loc - last_t_loc_2);
-        if (diff_1 / t_loc > 0.4 || diff_2 / t_loc > 0.4) {
-          t_loc = Math.floor((last_t_loc_1 + last_t_loc_2) / 2);
-          last_t_loc_2 = last_t_loc_1;
-          last_t_loc_1 = t_loc;
-        } else {
-          last_t_loc_2 = last_t_loc_1;
-          last_t_loc_1 = t_loc;
-        }
-      } else {
-        last_t_loc_1 = t_loc;
-        last_t_loc_2 = t_loc;
-      };
-
-      t_loc = t_loc + index_to_start + delay_after_magnify;
-      // REMOVE EFFECT OF PPG
-      if (ecg_data[t_loc] < iso) {
-        var peak_locs = this.find_peaks(test_segment);
-
-        var maximum_peak = iso;      // New candiadate must be a maxima and higher than iso
-        var maximum_peak_ind = null;
-        for (var ind = 0; ind < peak_locs.length; ind++) {
-          if (test_segment[peak_locs[ind]] > maximum_peak) {
-            maximum_peak = test_segment[peak_locs[ind]];
-            maximum_peak_ind = peak_locs[ind];
-          };
-        };
-
-        if (maximum_peak_ind) {
-          var value = Math.abs(maximum_peak_ind / last_maximum_peak_ind);
-          if (value < 0.25 || value > 4) {
-            maximum_peak_ind = last_maximum_peak_ind;
-          } else {
-            last_maximum_peak_ind = maximum_peak_ind;
-          }
-        } else {
-          maximum_peak_ind = last_maximum_peak_ind;
-        }
-      };
-      // IMPORTANT, NOT TO CHANGE
-      var global_ind = maximum_peak_ind + index_to_start;
-   
-      var mag_1 = ecg_data[t_loc] - iso;
-      var mag_2 = ecg_data[global_ind] - iso;
-      var value_1 =  Math.abs(mag_2 / mag_1);
-      if (value_1 > 0.56) {
-        t_loc = global_ind;
-      };
-      // END OF REMOVE EFFECT OF PPG
-      // REVERSE ENGINEERING FOR T_AMPLITUDE
-      t_amplitude = ecg_data[t_loc] - iso;
-
-      if (!t_amplitude) {
-        if (last_t_val_1 && last_t_val_2) {
-          t_amplitude = Math.ceil((last_t_val_1 + last_t_val_2) / 2);
-        };
-      } else {
-        if (last_t_val_1 && last_t_val_2) {
-          var diff_1 = Math.abs(t_amplitude - last_t_val_1);
-          var diff_2 = Math.abs(t_amplitude - last_t_val_2);
-          var tich_1 = t_amplitude * last_t_val_1;
-          var tich_2 = t_amplitude * last_t_val_2;
-          if ((diff_1 / last_t_val_1 > 2.5 || diff_2 / last_t_val_2 > 2.5) || ((tich_1 < 0 || tich_2 < 0) && Math.abs(last_t_val_1) > 20)) {
-            t_amplitude = Math.floor((last_t_val_1 * 25 + last_t_val_2 * 25 + t_amplitude * 2) / 52);
-            last_t_val_2 = last_t_val_1;
-            last_t_val_1 = t_amplitude;
-          } else {
-            last_t_val_2 = last_t_val_1;
-            last_t_val_1 = t_amplitude;
-          }
-        } else {
-          last_t_val_1 = t_amplitude;
-          last_t_val_2 = t_amplitude;
-        };
-      };
-      // END OF REVERSE ENGINEERING
-      t_peaks.push(Math.floor(t_amplitude / qrs_amplitude * 100));
-      t_locs.push(t_loc);
-    };
-    return [t_peaks, t_locs];
-  };
-  var last_std_val_1, last_std_val_2;
-  this.std_detect = function(fs, ecg_data, qrs_locs, t_locs, baseline, power) {
-    if (baseline == null) {
-      baseline = 250;
-    };
-    if (power == null) {
-      power = 5;
-    };
-    if (qrs_locs == null) {
-      qrs_locs = this.qrs_detect(fs, ecg_data, baseline, power);
-    };
-    if (t_locs == null) {
-      var ohyeah = this.t_peaks_detect(fs, ecg_data, qrs_locs, baseline, power);
-      t_locs = ohyeah[1];
-    };
-    var std_bin = [];
-    for (var hk = 0; hk < t_locs.length; hk++) {
-      var std = 0;
-      var delay_of_qrs = 1;
-      var delay_of_iso = -2;
-      var qrs = ecg_data[qrs_locs[hk] + delay_of_qrs];
-      var iso = ecg_data[qrs_locs[hk] + delay_of_iso];
-      if (iso < -500) { iso = 0; };
-
-      var qrs_amplitude = Math.abs(qrs - iso);
-      var rt_length = t_locs[hk] - qrs_locs[hk];
-      var st_index_start = Math.ceil(rt_length / 3) + qrs_locs[hk] + delay_of_qrs;
-      var st_index_end = Math.ceil(rt_length / 3 * 2.1) + qrs_locs[hk] + delay_of_qrs;
-    
-      for (var lm = st_index_start; lm < st_index_end; lm++) {
-        std += (ecg_data[lm] - iso);
-      };
-      std = std / (st_index_end - st_index_start);
-      std = Math.floor(std / qrs_amplitude * 100);
-      if (!std) {
-        if (last_std_val_1 && last_std_val_2) {
-          std = Math.ceil((last_std_val_1 + last_std_val_2) / 2);
-        };
-      };
-
-      if (last_std_val_1 && last_std_val_2) {
-        var diff_1 = Math.abs(std - last_std_val_1);
-        var diff_2 = Math.abs(std - last_std_val_1);
-        var tich_1 = std * last_std_val_1;
-        var tich_2 = std * last_std_val_2;
-
-        if (((diff_1 / last_std_val_1 > 2.5 || diff_2 / last_std_val_2 > 2.5) || ((tich_1 < 0 && tich_2 < 0) && (Math.abs(diff_1 / std) > 3 || Math.abs(diff_2 / std) > 3)))) {
-          std = Math.floor((last_std_val_1 + last_std_val_2) / 2);
-          last_std_val_2 = last_std_val_1;
-          last_std_val_1 = std;
-        } else {
-          last_std_val_2 = last_std_val_1;
-          last_std_val_1 = std;
-        }
-      } else {
-        last_std_val_1 = std;
-        last_std_val_2 = std;
-      };
-
-      std_bin.push(std);
-    };
-    return std_bin;
-  };
-  this.calculate_heart_rates = function(fs, ecg_data, qrs_locs, baseline, power) {
-    var hrs = [];
-    if (baseline == null) {
-      baseline = 250;
-    };
-    if (power == null) {
-      power = 8;
-    };
-    if (ecg_data != null && qrs_locs == null) {
-      qrs_locs = this.qrs_detect(fs, ecg_data, baseline, power);
-    };
-    if (qrs_locs.length <= 1) {
-      return "---";
-    };
-    for (i = 0; i < qrs_locs.length - 1; i++) {
-      var hr = Math.floor(60 / ((qrs_locs[i + 1] - qrs_locs[i])  / fs));
-      hrs.push(hr);
-    };
-    return hrs;
-  };
-  this.smooth_signal_with_moving_avarage = function(span, data) {
-    var data_leng = data.length;
-    if (span == null) {
-      span = Math.ceil(data_leng / 2);
-    };
-    if (span > data_leng) {
-      span = data_leng;
-    };
-    var output = [];
-    for (var loop = 0; loop < data_leng; loop++) {
-      var cumsum = 0;
-      for (var ind = 0; ind < span; ind++) {
-        if ((loop + ind) < data_leng) {
-          cumsum += data[loop + ind];
-        } else {
-          cumsum += data[loop + ind - span];
-        }
-      };
-      output.push(Math.floor(cumsum / span));
-    };
-    return output;
-  };
-  this.filter = function(b, a, data) {
-      var dataafterfilter = [];
-      var sx = data.length;
-      dataafterfilter[0] = b[0] * data[0];
-      for (var i = 1; i < sx; i++) {
-          dataafterfilter[i] = 0;
-          for (var j = 0; j <= i; j++) {
-              var k = i - j;
-              if (j > 0) {
-                  if ((k < b.length) && (j < data.length)) {
-                      dataafterfilter[i] += (b[k] * data[j]);
-                  }
-                  if ((k < dataafterfilter.length) && (j < a.length)) {
-                      dataafterfilter[i] -= (a[j] * dataafterfilter[k]);
-                  }
-              } else {
-                  if ((k < b.length) && (j < data.length)) {
-                      dataafterfilter[i] += (b[k] * data[j]);
-                  }
-              }
-          }
-      }
-      return dataafterfilter;
-  };
-  this.convolution = function(a, b) {
-        var dataafterconv = [];
-        var na = a.length;
-        var nb = b.length;
-        if (na > nb) {
-            if (nb > 1) {
-                var output_leng = na + nb - 1;
-                for (var i = 0; i < output_leng; i++) {
-                    if (i < a.length) {
-                        dataafterconv[i] = a[i];
-                    } else {
-                        dataafterconv[i] = 0;
-                    }
-                }
-                a = dataafterconv;
-            }
-            dataafterconv = this.filter(b, [1], a);
-        } else {
-            if (na > 1) {
-                var output_leng = na + nb - 1;
-                for (var i = 0; i < output_leng; i++) {
-                    if (i < b.length) {
-                        dataafterconv[i] = b[i];
-                    } else {
-                        dataafterconv[i] = 0;
-                    }
-                }
-                b = dataafterconv;
-            }
-            dataafterconv = this.filter(a, [1], b);
-        }
-        return dataafterconv;
-  };
-  this.baseline_remove_using_moving_average = function(data) {
-    var baseline_wander = [];
-    var output = [];
-    var span = 40;
-    for (var ecg_ind = 0; ecg_ind < data.length; ecg_ind += span) {
-      var segment = [];
-      for (var loop = 0; loop < span; loop++) {
-        if ((ecg_ind + loop) < data.length) {
-          segment.push(data[ecg_ind + loop]);
-        } else {
-          break;
-        };
-      };
-      var output = this.smooth_signal_with_moving_avarage(span, segment);
-      baseline_wander = baseline_wander.concat(output);
-    };
-    baseline_wander = this.smooth_signal_with_moving_avarage(20, baseline_wander);
-    baseline_wander = this.smooth_signal_with_moving_avarage(20, baseline_wander);
-    for (var loop = 0; loop < data.length; loop++) {
-      output[loop] = data[loop] - baseline_wander[loop];
-    };
-    return output;
-  };
-  this.baseline_remove_using_convolution = function(data) {
-    var arr = [-0.000159964932011480,	-0.000619884504940720,	-0.00153974351839410,	0.997840352109070,	-0.00153974351839410,	-0.000619884504940720,	-0.000159964932011480];
-    var dataafterfilter = this.convolution(arr, data);
-    return dataafterfilter;
-  };
-  this.baseline_remove_using_highpass_filter = function(data) {
-    var a = [1,	-4.98729199315188,	9.94924868189903,	-9.92399377016952,4.94940946801650,	-0.987372386593206];
-    var b = [0.993666134369692,	-4.96833067184846,	9.93666134369692,	-9.93666134369692,	4.96833067184846,	-0.993666134369692];
-    var dataafterfilter = this.filter(b, a, data);
-    return dataafterfilter;
-  };
-  this.noise_removal_using_low_pass_filter = function(data) {
-    var a = [1,	-0.985325239279239,	0.973849331836765,	-0.386356558648449,	0.111163840578342,	-0.0112635124565659];
-    var b = [0.0219396206884642,	0.109698103442321,	0.219396206884642,	0.219396206884642,	0.109698103442321,	0.0219396206884642];
-    var dataafterfilter = this.filter(b, a, data);
-    return dataafterfilter;
-  };
-});
-
-app.factory('socket', function ($rootScope) {
-  var socket = io.connect('http://localhost:2000');
-  return {
-    on: function (eventName, callback) {
-      socket.on(eventName, function () {
-        var args = arguments;
-        $rootScope.$apply(function () {
-          callback.apply(socket, args);
-        });
-      });
-    },
-    emit: function (eventName, data, callback) {
-      socket.emit(eventName, data, function () {
-        var args = arguments;
-        $rootScope.$apply(function () {
-          if (callback) {
-            callback.apply(socket, args);
-          };
-        });
-      });
+  $scope.initiateChart = function(max_val, min_val) {
+    if (max_val) {
+      $scope.chart = new Chartist.Line('.ct-chart', chart_data, create_chart_options([true, false], [true, true], max_val, min_val));
+    } else {
+      $scope.chart = new Chartist.Line('.ct-chart', chart_data, create_chart_options_without_highlow([true, false], [true, true]));
     }
   };
-});
+
+  var perform_diagnosis_for_these_features = function(hr, hrv, std, tp) {
+    if (std > 30 && tp > 80) {
+      $scope.statistics_count[2] += 1;
+      $scope.health = "ST Elevate";
+      return;
+    };
+    if (std < -20 && tp < -20) {
+      $scope.statistics_count[2] += 1;
+      $scope.health = "NSTEMI";
+      return;
+    };
+    if (hrv > 20 && hr < 90) {
+      $scope.statistics_count[1] += 1;
+      $scope.health = "PVC";
+      return;
+    };
+    if (hrv > 12) {
+      $scope.statistics_count[1] += 1;
+      $scope.health = "Arrythmia";
+      return;
+    };
+
+    if (tp < -10) {
+      $scope.statistics_count[1] += 1;
+      $scope.health = "T inverted";
+      return;
+    };
+
+    if (tp > 100) {
+      $scope.statistics_count[1] += 1;
+      $scope.health = "T peaked";
+      return;
+    };
+
+    if (std < -10 || std > 20) {
+      $scope.statistics_count[1] += 1;
+      $scope.health = "ST Deviate";
+      return;
+    };
+
+
+    if (hr > 140) {
+      $scope.statistics_count[1] += 1;
+      $scope.health = "Tarchy";
+      return;
+    };
+    if (hr > 120) {
+      $scope.statistics_count[0] += 1;
+      $scope.health = "Fast HR";
+      return;
+    };
+    if (hr < 50) {
+      $scope.statistics_count[1] += 1;
+      $scope.health = "Brady";
+      return;
+    };
+    if (hr < 60) {
+      $scope.statistics_count[0] += 1;
+      $scope.health = "Slow HR";
+      return;
+    };
+    if (tp > -10 && tp < 4) {
+      $scope.statistics_count[1] += 1;
+      $scope.health = "T Absence";
+      return;
+    };
+
+    $scope.statistics_count[0] += 1;
+    $scope.health = "Normal";
+  };
+
+  $scope.initiate_chart_when_ecg_bin_has_data = function(should_flexible_axis) {
+    if (should_flexible_axis) {
+      $scope.initiate_chart_interval = $interval(function() {
+        if (ecg_bin.length > 0) {
+          $scope.initiateChart();
+          $scope.cancel_initiate_chart_interval();
+          jQuery("#page_loading").hide();
+        };
+      }, 2000);
+    } else {
+      $scope.initiate_chart_interval = $interval(function() {
+        if (ecg_bin.length > 0) {
+          $scope.initiateChart(dsp.find_max(ecg_bin), dsp.find_min(ecg_bin));
+          $scope.cancel_initiate_chart_interval();
+          jQuery("#page_loading").hide();
+        };
+      }, 2000);
+    };
+  };
+
+  if ($window.localStorage["cassandra_command_lab_to_run_this_signal"]) {
+
+    $scope.record_of_interest = JSON.parse($window.localStorage["cassandra_command_lab_to_run_this_signal"]);
+    $window.localStorage.removeItem("cassandra_command_lab_to_run_this_signal");
+
+    var record_data_id = $scope.record_of_interest.record_id;
+    console.log("Record_id: " + record_data_id);
+
+    $scope.record_name = $scope.record_of_interest.name;
+    $scope.record_comment = $scope.record_of_interest.description;
+    $scope.record_data_to_display = JSON.parse($window.localStorage[record_data_id]);
+
+    ecg_bin = $scope.record_data_to_display.data;
+    $scope.ecg_storage = ecg_bin;
+
+    $scope.sampling_frequency = $scope.record_data_to_display.sampling_frequency;
+    $scope.record_sampling_frequency = $scope.sampling_frequency;
+
+    if ($scope.sampling_frequency > 40) {
+
+      $scope.down_sampling_value = Math.floor($scope.sampling_frequency / $scope.plot_speed);
+      for (i = 0; i < ecg_bin.length; i ++) {
+        ecg_bin[i] = ecg_bin[i] * 1000;
+      };
+      var value = dsp.cal_mean(ecg_bin);
+      for (i = 0; i < ecg_bin.length; i ++) {
+        ecg_bin[i] = ecg_bin[i] - value;
+      };
+      // NEU DATA DC DO TU MAY CASSANDRA, THEM BASELINE REMOVE
+      if ($scope.sampling_frequency == 320) {
+        ecg_bin = dsp.noise_removal_using_low_pass_filter(ecg_bin);
+        ecg_bin = dsp.smooth_signal_with_moving_avarage(4, ecg_bin);
+        ecg_bin = dsp.down_sampling($scope.down_sampling_value, ecg_bin);
+        ecg_bin = dsp.baseline_remove_using_moving_average(ecg_bin);
+        $scope.initiate_chart_when_ecg_bin_has_data(true);
+
+      } else {
+        ecg_bin = dsp.noise_removal_using_low_pass_filter(ecg_bin);
+        ecg_bin = dsp.smooth_signal_with_moving_avarage(4, ecg_bin);
+        ecg_bin = dsp.down_sampling($scope.down_sampling_value, ecg_bin);
+        ecg_bin = dsp.baseline_remove_using_moving_average(ecg_bin);
+        var chart_max_value = dsp.find_max(ecg_bin);
+        var chart_min_value = dsp.find_min(ecg_bin);
+        $scope.initiateChart(chart_max_value, chart_min_value);
+      };
+    } else {
+      var chart_max_value = dsp.find_max(ecg_bin);
+      chart_max_value = chart_max_value * 1.4;
+      var chart_min_value = dsp.find_min(ecg_bin);
+      $scope.initiateChart(chart_max_value, chart_min_value);
+    };
+  } else {
+    jQuery("#page_loading").show();
+    $scope.custom_timeout = $timeout(function() {
+
+      // DUNG DUNG VO, QUAN TRONG REFERENCE
+      $scope.data_retrieved_from = "server";
+      heroku_socket.on("data_array_from_phone_to_server_then_to_clients", function(data_array) {
+          $scope.data_retrieved_from = "phone";
+          $scope.flag_from_receive_data_from_phone = 1;
+          console.log("Received " + data_array.length + " data from server");
+          $scope.sampling_frequency = 200;
+          $scope.record_sampling_frequency = $scope.sampling_frequency;
+          var ecg_package = data_array;  // ecg_package == values
+          var ecg_temp_bin = [];
+          var ecg_special_temp = [];
+          for (var loop = 0; loop < ecg_package.length; loop++) {
+  
+            if (ecg_package[loop] > 0 && ecg_package[loop] < 8000000) {
+              ecg_temp_bin.push(ecg_package[loop]);
+            };
+          };
+          var value_to_substract_important = ecg_temp_bin[0];
+          for (var loop = 0; loop < ecg_temp_bin.length; loop++) {
+            ecg_temp_bin[loop] = ecg_temp_bin[loop] - value_to_substract_important;
+          };
+          $scope.down_sampling_value = Math.floor($scope.sampling_frequency / $scope.plot_speed);
+          ecg_temp_bin = dsp.noise_removal_using_low_pass_filter(ecg_temp_bin);
+          ecg_temp_bin = dsp.smooth_signal_with_moving_avarage(4, ecg_temp_bin);
+          ecg_package = ecg_temp_bin;
+          $scope.ecg_storage = $scope.ecg_storage.concat(ecg_package);
+          ecg_package = dsp.down_sampling($scope.down_sampling_value, ecg_package);
+          ecg_package = dsp.baseline_remove_using_moving_average(ecg_package);
+          ecg_bin = ecg_bin.concat(ecg_package);
+      });
+      socket.on("data_array_from_serial_port_to_client", function(data_array) {
+          $scope.data_retrieved_from = "serialport";
+          $scope.flag_from_receive_data_from_phone = 1;
+          console.log("Received " + data_array.length + " data from server");
+          $scope.sampling_frequency = 80;
+          $scope.record_sampling_frequency = $scope.sampling_frequency;
+          var ecg_package = data_array;  // ecg_package == values
+          var ecg_temp_bin = [];
+          var ecg_special_temp = [];
+          ecg_temp_bin = ecg_package;
+
+          $scope.down_sampling_value = Math.floor($scope.sampling_frequency / $scope.plot_speed);
+          ecg_temp_bin = dsp.noise_removal_using_low_pass_filter(ecg_temp_bin);
+          ecg_temp_bin = dsp.smooth_signal_with_moving_avarage(4, ecg_temp_bin);
+          ecg_package = ecg_temp_bin;
+          $scope.ecg_storage = $scope.ecg_storage.concat(ecg_package);
+          ecg_package = dsp.down_sampling($scope.down_sampling_value, ecg_package);
+          ecg_package = dsp.baseline_remove_using_moving_average(ecg_package);
+          ecg_bin = ecg_bin.concat(ecg_package);
+      });
+      $scope.cancel_custom_timeout();
+      $scope.initiate_chart_when_ecg_bin_has_data(true);
+    }, 50);
+  };
+  var hrv_data = [],
+      hrh_data = [],
+      hrvh_data = [],
+      stdh_data = [],
+      th_data = [];
+
+  $scope.updateChart = function(chart_data) {
+    $scope.chart.update(chart_data);
+  };
+  $scope.updateChartData = function(index, value) {
+    if (index < $scope.window_leng - 2) {
+      chart_data.series[0][index] = value;
+      chart_data.series[0][index + 1] = null;
+    } else {
+      // When reaching the end of the window_leng
+      // update the value
+      chart_data.series[0][index] = value;
+      // Then perform diagnosis
+      var t0 = performance.now();
+      heart_rate_interval_tasks_handle();
+      variability_interval_tasks_handle();
+      t_and_std_interval_tasks_handle();
+      health_interval_tasks_handle();
+
+      chart_data.series[0][0] = null;
+      var t1 = performance.now();
+      console.log(Math.floor((t1 - t0) * 100) / 100 + "ms");
+    };
+  };
+
+  var chart_update_interval_tasks_handle = function() {
+    var value = ecg_bin[$scope.data_pointer];
+    if ($scope.chart_pointer == $scope.window_leng) {
+      $scope.chart_pointer = 0;
+    };
+    $scope.updateChartData($scope.chart_pointer, value);
+    $scope.updateChart(chart_data);
+    $scope.data_pointer += 1;
+    $scope.chart_pointer += 1;
+  };
+  var special_resume_chart_update_interval = function() {
+    $scope.resume_chart_update_interval = $interval(function() {
+      if ($scope.data_pointer < ecg_bin.length) {
+        $scope.chart_update_interval = $interval(function() {
+          if ($scope.data_pointer < ecg_bin.length) {
+            chart_update_interval_tasks_handle();
+          } else {
+            stop_all_intervals_and_timeouts();
+            special_resume_chart_update_interval();
+          };
+        }, $scope.tick_speed);
+        $scope.cancel_resume_chart_update_interval();
+      } else {
+        console.log("No more data found!");
+      }
+    }, 2000);
+  };
+
+  var stop_all_intervals_and_timeouts = function() {
+
+    // chart draw interval
+    if ($scope.chart_update_interval != null) {
+      $interval.cancel($scope.chart_update_interval);
+    };
+    $scope.chart_update_interval = null;
+
+    // heart rate interval
+    if ($scope.heart_rate_interval != null) {
+      $interval.cancel($scope.heart_rate_interval);
+    };
+    $scope.heart_rate_interval = null;
+
+    // variability interval
+    if ($scope.variability_interval != null) {
+      $interval.cancel($scope.variability_interval);
+    };
+    $scope.variability_interval = null;
+
+    // health interval
+    if ($scope.health_interval != null) {
+      $interval.cancel($scope.health_interval);
+    };
+    $scope.health_interval = null;
+
+    // chart update timeout interval
+    if ($scope.chart_update_timeout != null) {
+      $timeout.cancel($scope.chart_update_timeout);
+    };
+    $scope.chart_update_timeout = null;
+  };
+
+  var animate_blinking = function() {
+    jQuery(".blinking").animate({
+      "opacity": 0.6
+    }, 1000, function() {
+      jQuery(".blinking").animate({
+        "opacity": 1
+      }, 1000, function() {
+        animate_blinking();
+      });
+    });
+  };
+  var scroll_to_bottom_of_message_box = function() {
+    $scope.scroll_timeout = $timeout(function() {
+      jQuery("#div_chat_content").animate({ scrollTop: jQuery(this).height() }, 400);
+      $timeout.cancel($scope.scroll_timeout);
+    }, 100);
+  };
+
+  animate_blinking();
+
+  var update_colors =  function() {
+    $scope.heart_rate_color       = colors_pool[$scope.heart_rate_condition];
+    $scope.variability_color      = colors_pool[$scope.variability_condition];
+    $scope.health_color           = colors_pool[$scope.health_condition];
+    $scope.tmag_color             = colors_pool[$scope.tmag_condition];
+    $scope.std_color              = colors_pool[$scope.std_condition];
+  };
+
+  $scope.chat_messages = [];
+
+  $scope.insert_chat_message = function(content) {
+    var chat_message = {
+      name: "Me",
+      style: "color:" + green_code,
+      content: content,
+      time: new Date()
+    };
+    $scope.chat_messages.push(chat_message);
+    $scope.message_content = "";
+    scroll_to_bottom_of_message_box();
+    chat_message_to_server = {
+      name: $scope.userInfo.email,
+      style: "color:" + orange_code,
+      content: content,
+      time: new Date()
+    };
+    heroku_socket.emit("chat_message_send_to_other_machine_in_laboratory", chat_message_to_server);
+  };
+
+  heroku_socket.on("chat_message_send_to_other_machine_in_laboratory_send_by_server", function(chat_message) {
+    $scope.chat_messages.push(chat_message);
+    scroll_to_bottom_of_message_box();
+  });
+
+  if ($scope.userInfo.email) {
+    heroku_socket.emit("notify_other_people_in_laboratory_iam_online", $scope.userInfo.email);
+  };
+
+  heroku_socket.on("notify_other_people_in_laboratory_iam_online_send_by_server", function(user_name) {
+    var chat_message = {
+      name: "Server",
+      style: "color:" + red_code,
+      content: "user <span style='corlor:" + orange_code + "'>" + user_name + "</span> is online." ,
+      time: new Date()
+    };
+    $scope.chat_messages.push(chat_message);
+    scroll_to_bottom_of_message_box();
+  });
+
+  $scope.chart_update_interval = $interval(function() {
+    if ($scope.data_pointer < ecg_bin.length) {
+      chart_update_interval_tasks_handle();
+    } else {
+      stop_all_intervals_and_timeouts();
+      special_resume_chart_update_interval();
+    };
+  }, $scope.tick_speed);
+
+  var heart_rate_interval_tasks_handle = function() {
+    var fs   = $scope.plot_speed;
+    var data = chart_data.series[0];
+    var heart_rates = dsp.calculate_heart_rates(fs, data);
+    for (i = 0; i < heart_rates.length; i++) {
+      hrv_data.push(heart_rates[i]);
+      hrh_data.push(heart_rates[i]);
+    };
+    $scope.heart_rate = Math.round(dsp.cal_mean(heart_rates));
+    if ($scope.heart_rate <= 40) {
+      $scope.heart_rate_condition = 2;
+    } else {
+      if ($scope.heart_rate <= 54) {
+        $scope.heart_rate_condition = 1;
+      } else {
+        if ($scope.heart_rate <= 120) {
+          $scope.heart_rate_condition = 0;
+        } else {
+          if ($scope.heart_rate <= 140) {
+            $scope.heart_rate_condition = 1;
+          } else {
+            $scope.heart_rate_condition = 2;
+          };
+        };
+      };
+    };
+    update_colors();
+  };
+  var variability_interval_tasks_handle = function() {
+    var value = dsp.cal_std(hrv_data);
+    value = (Math.floor(value * 100) / 100).toFixed(2);
+    hrvh_data.push(value);
+    $scope.variability = value;
+    if (value <= 10) {
+      $scope.variability_condition = 0;
+    } else {
+      if (value <= 20) {
+        $scope.variability_condition = 1;
+      } else {
+        $scope.variability_condition = 2;
+      }
+    }
+    update_colors();
+    hrv_data = [];
+  };
+  var t_and_std_interval_tasks_handle = function() {
+    var fs   = $scope.plot_speed;
+    var data = chart_data.series[0];
+    var qrs_locs = dsp.qrs_detect(fs, data);
+    var result = dsp.t_peaks_detect(fs, data, qrs_locs);
+    t_peaks = result[0];
+    t_locs = result[1];
+    var std_results = dsp.std_detect(fs, data, qrs_locs, t_locs);
+    var t_peak = Math.round(dsp.cal_mean(t_peaks));
+    var std_val = Math.round(dsp.cal_mean(std_results));
+    // Push data into heathcare bin
+    for (ali = 0; ali < t_peaks.length; ali++) {
+      th_data.push(t_peaks[ali]);
+    };
+    for (ali = 0; ali < std_results.length; ali++) {
+      stdh_data.push(std_results[ali]);
+    };
+    // End of healthcare bin
+    // Handle t peak
+    $scope.tmag = t_peak;
+    if (t_peak <= -20) {
+      $scope.tmag_condition = 2;
+    } else {
+      if (t_peak >= -20 && t_peak <= -10) {
+        $scope.tmag_condition = 1;
+      } else {
+        if (t_peak >= 80) {
+          $scope.tmag_condition = 1;
+        } else {
+          if (t_peak >= -10 && t_peak <= 4) {
+            $scope.tmag_condition = 1;
+          } else {
+            $scope.tmag_condition = 0;
+          }
+        };
+      };
+    };
+    // Hanlde std value
+    $scope.std_val = std_val;
+    if (std_val <= -20 || std_val >= 30) {
+      $scope.std_condition = 2;
+    } else {
+      if (std_val >= -20 && std_val <= -10) {
+        $scope.std_condition = 1;
+      } else {
+        if (std_val >= 20 && std_val <= 30) {
+          $scope.std_condition = 1;
+        } else {
+          $scope.std_condition = 0;
+        };
+      }
+
+    };
+    update_colors();
+  };
+  var health_interval_tasks_handle = function() {
+    var mean_hr = dsp.cal_mean(hrh_data);
+    var mean_hrv = dsp.cal_mean(hrvh_data);
+    var mean_t = dsp.cal_mean(th_data);
+    var mean_std = dsp.cal_mean(stdh_data);
+    perform_diagnosis_for_these_features(mean_hr, mean_hrv, mean_std, mean_t);
+    $scope.health_condition = $scope.check_for_health_color();
+    update_colors();
+    var obj = {
+      mean_hr: mean_hr,
+      mean_hrv: $scope.variability,
+      mean_t: mean_t,
+      mean_std: mean_std,
+      health_status: $scope.health,
+      health_status_color: colors_pool[$scope.health_condition],
+    };
+    heroku_socket.emit("features_extraction_result_from_desktop_app_to_phone", obj);
+    hrh_data = [];
+    hrvh_data = [];
+    stdh_data = [];
+    th_data = [];
+  };
+
+  var using_intervals_to_diagnose = function(hr, vari, heal) {
+    if (hr) {
+      $scope.heart_rate_interval = $interval(function() {
+        heart_rate_interval_tasks_handle();
+      }, hr);
+    };
+    if (vari) {
+      $scope.variability_interval = $interval(function () {
+        variability_interval_tasks_handle();
+      }, vari);
+    };
+    if (heal) {
+      $scope.health_interval = $interval(function () {
+        health_interval_tasks_handle();
+      }, heal);
+    };
+  };
+
+  //using_intervals_to_diagnose(2000, 2000, 2000);
+
+  socket.on("diag_server-welcome-new-user", function(data) {
+    var chat_message = {
+      name: "Server",
+      style: "color:" + red_code,
+      content: "Hello there, group conversation goes here. Enjoy :)",
+      time: new Date()
+    };
+    $scope.chat_messages.push(chat_message);
+  });
+
+  var transform_statistics = function(array) {
+    var total = array[0] + array[1] + array[2];
+    array[0] = Math.floor(array[0] / total * 100);
+    array[1] = Math.floor(array[1] / total * 100);
+    array[2] = 100 - array[0] - array[1];
+    return array;
+  };
+
+  $scope.open_popup_upload_record = function() {
+    // stop_all_intervals_and_timeouts();
+    jQuery("#upload_record_popup").show();
+    jQuery("#upload_record_popup > form > .div_small_popup").animate({
+      top: 90,
+      opacity: 1
+    }, 400);
+    $scope.custom_timeout = $timeout(function() {
+      jQuery("#page_loading").show();
+      var text_output_to_area = "";
+
+      // NOT TO DELETE
+      // IMPORTANT
+
+      if ($scope.flag_from_receive_data_from_phone == 0) {
+        var value_to_devine = dsp.find_max($scope.ecg_storage);
+        for (var loop = 0; loop < $scope.ecg_storage.length - 1; loop++) {
+          var value = Math.floor($scope.ecg_storage[loop] / value_to_devine * 10000) / 10000;
+          text_output_to_area += (value + "\n");
+        };
+        var last_value = Math.floor($scope.ecg_storage[$scope.ecg_storage.length - 1] / value_to_devine * 10000) / 10000;
+        text_output_to_area += (last_value);
+      } else {
+        for (var loop = 0; loop < $scope.ecg_storage.length - 1; loop++) {
+          var value = $scope.ecg_storage[loop];
+          text_output_to_area += (value + "\n");
+        };
+        var last_value = $scope.ecg_storage[$scope.ecg_storage.length - 1];
+        text_output_to_area += (last_value);
+      };
+      
+      $scope.file_content = text_output_to_area;
+      $scope.update_duration();
+      jQuery("#page_loading").hide();
+      $scope.cancel_custom_timeout();
+    }, 500);
+  };
+  $scope.open_popup_find_nearby_device = function() {
+    jQuery("#find_nearby_devices_popup").show();
+    jQuery("#find_nearby_devices_popup > .div_small_popup").animate({
+      top: 90,
+      opacity: 1
+    }, 400);
+  };
+  $scope.close_popup_upload_record = function() {
+    jQuery("#upload_record_popup > form > .div_small_popup").animate({
+      top: 60,
+      opacity: 0
+    }, 400, function() {
+      jQuery("#upload_record_popup").hide();
+    });
+  };
+  $scope.close_popup_find_nearby_devices = function() {
+    jQuery("#find_nearby_devices_popup > .div_small_popup").animate({
+      top: 60,
+      opacity: 0
+    }, 400, function() {
+      jQuery("#find_nearby_devices_popup").hide();
+    });
+  };
+
+  if ($window.localStorage["cassandra_userInfo"]) {
+    $scope.userInfo = JSON.parse($window.localStorage["cassandra_userInfo"]);
+  };
+
+  $scope.save_this_record = function() {
+    jQuery("#page_loading").show();
+    $scope.custom_timeout = $timeout(function() {
+      var lines = $scope.file_content.split("\n");
+      $scope.ecg_to_store = [];
+      for (var loop = 0; loop < lines.length; loop++) {
+        $scope.ecg_to_store.push(lines[loop]);
+      };
+      $scope.new_record = {
+        name: $scope.record_name,
+        date: $scope.record_date,
+        uploaded_by: $scope.userInfo.email + "-desktop",
+        record_id: "record__" + Math.floor(Math.random() * 1000000) + "__" + $scope.record_name.split(' ').join('_') + "__" + $scope.record_comment.split(' ').join('_'),
+        data_link: $scope.local_server.link + "\\bin\\saved-records\\" + $scope.record_name.split(' ').join('_') + ".txt",
+        description: $scope.record_comment,
+        clinical_symptoms: {
+          chest_pain: false,
+          shortness_of_breath: false,
+          severe_sweating: false,
+          dizziness: false,
+        },
+        statistics: transform_statistics($scope.statistics_count),
+        send_to_doctor: false,
+        user_info: JSON.parse($window.localStorage["cassandra_userInfo"]),
+      };
+      $scope.record_data = {
+        record_id: $scope.new_record.record_id,
+        sampling_frequency: $scope.record_sampling_frequency,
+        data: $scope.ecg_to_store,
+        user_info: JSON.parse($window.localStorage["cassandra_userInfo"]),
+      };
+      if ($window.localStorage["cassandra_records"]) {
+        $scope.records = JSON.parse($window.localStorage["cassandra_records"]);
+      } else {
+        $scope.records = [];
+      };
+      $scope.records.push($scope.new_record);
+      $window.localStorage["cassandra_records"] = JSON.stringify($scope.records);
+      $window.localStorage[$scope.record_data.record_id] = JSON.stringify($scope.record_data);
+      socket.emit("save_this_record_to_local_server", $scope.new_record);
+      var package_to_database_server = {
+        record_info: $scope.new_record,
+        record_data: $scope.record_data,
+        user_info: $scope.userInfo,
+      };
+      heroku_socket.emit("save_this_record_directly_to_database_server", package_to_database_server);
+      alert("Record saved successfully");
+      jQuery("#page_loading").hide();
+      $scope.cancel_custom_timeout();
+      $scope.close_popup_upload_record();
+    }, 1600);
+  };
+  jQuery("#page_loading").hide();
+}]);
