@@ -3,16 +3,16 @@
 app.config(function ($routeProvider) {
   $routeProvider
     .when("/", {
-      templateUrl: "templates/recordsTemplate.html",
-      controller: "recordsController"
+      templateUrl: "templates/dataTemplate.html",
+      controller: "dataController"
     })
 
     .when("/records", {
-      templateUrl: "templates/recordsTemplate.html",
-      controller: "recordsController"
+      templateUrl: "templates/dataTemplate.html",
+      controller: "dataController"
     })
     .otherwise(
-      { redirectTo: "/dashboard"}
+      { redirectTo: "/main"}
     );
 });
 
