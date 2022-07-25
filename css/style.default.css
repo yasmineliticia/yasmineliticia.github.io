@@ -12,10 +12,10 @@ body {
   font-weight: bold;
 }
 .bouton a {
-  color: Maroon;
+  color: white;
   text-decoration: none;
 }
 .bouton a:hover {
 	color: #ffffff;
-  background-color: Maroon;
+  background-color: white;
 }
