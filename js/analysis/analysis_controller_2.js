@@ -910,8 +910,8 @@ var app = angular.module("app")
       link: "http://localhost:8000",
     };
     $scope.transaction_server = {
-      name: "Cassandra express server",
-      link: "http://103.15.51.249:1337",
+      name: "PC sever",
+      link: "http://127.0.0.1:5500",
     };
     $scope.socket = io.connect($scope.local_server.link, { 'force new connection': true } );
     $scope.heroku_socket = io.connect($scope.transaction_server.link, { 'force new connection': true } );
