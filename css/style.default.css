@@ -1,0 +1,20 @@
+body {
+  text-align: center;
+  padding: 300px 0; 
+}
+.titre {
+  font-family: Georgia;
+  color: white;
+  font-size: 40px;
+}
+.bouton {
+  font-size: 40px;
+  font-weight: bold;
+}
+.bouton a {
+  color: FireBrick;
+  text-decoration: none;
+}
+.bouton a:hover {
+	color: #ffffff;
+  background-color: FireBrick
