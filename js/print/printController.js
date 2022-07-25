@@ -11,7 +11,6 @@ var app = angular.module("app")
       link: "http://103.15.51.249:1337",
     };
     $scope.socket = io.connect($scope.local_server.link, { 'force new connection': true } );
-    // $scope.heroku_socket = io.connect($scope.transaction_server.link, { 'force new connection': true } );
     $scope.socket.on("export_this_analysis_as_pdf_report_sent_by_server", function(data) {
       $scope.report_obj = data;
       $scope.socket.emit("print_preview_successfully_received_report_object_from_server");
@@ -19,11 +18,7 @@ var app = angular.module("app")
     });
   };
   $scope.configure_on_page_load = function() {
-    // const ipc = require('electron').ipcRenderer;
-    // const printPDFBtn = document.getElementById('print-pdf-button');
-    // printPDFBtn.addEventListener('click', function (event) {
-    //   ipc.send('print-to-pdf');
-    // });
+
     jQuery(".ct-line").css({
       "stroke-width": "1px"
     });
@@ -231,94 +226,94 @@ var app = angular.module("app")
     };
     $scope.perform_diagnosis_for_these_features = function(hr, hrv, std, tp) {
       if (std > 30 && tp > 80) {
-        // $scope.health_condition = 2;
+
         $scope.statistics_count[2] += 1;
         $scope.health = "ST Elevate";
-        // $scope.health = "Danger";
+
         return;
       };
       if (std < -20 && tp < -20) {
-        // $scope.health_condition = 2;
+
         $scope.statistics_count[2] += 1;
         $scope.health = "NSTEMI";
-        // $scope.health = "Danger";
+
         return;
       };
       if (hrv > 20 && hr < 90) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         $scope.health = "PVC";
-        // $scope.health = "Caution";
+
         return;
       };
       if (hrv > 12) {
-        // $scope.health_condition = 2;
+
         $scope.statistics_count[1] += 1;
         $scope.health = "Arrythmia";
-        // $scope.health = "Caution";
+
         return;
       };
 
       if (tp < -10) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         $scope.health = "T inverted";
-        // $scope.health = "Caution";
+
         return;
       };
 
       if (tp > 100) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         $scope.health = "T peaked";
-        // $scope.health = "Caution";
+
         return;
       };
 
       if (std < -10 || std > 20) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         $scope.health = "ST Deviate";
-        // $scope.health = "Caution";
+
         return;
       };
 
 
       if (hr > 140) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         $scope.health = "Tarchy";
-        // $scope.health = "Caution";
+
         return;
       };
       if (hr > 120) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[0] += 1;
         $scope.health = "Fast HR";
-        // $scope.health = "Caution";
+
         return;
       };
       if (hr < 50) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         $scope.health = "Brady";
-        // $scope.health = "Caution";
+
         return;
       };
       if (hr < 60) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[0] += 1;
         $scope.health = "Slow HR";
-        // $scope.health = "Caution";
+
         return;
       };
       if (tp > -10 && tp < 4) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         $scope.health = "T Absence";
         return;
       };
-      // $scope.health_condition = 0;
+
       $scope.statistics_count[0] += 1;
       $scope.health = "Normal";
     };
@@ -371,7 +366,7 @@ var app = angular.module("app")
         },
       };
       $scope.ecg_chart = new Chartist.Line('#ecg_chart', chart_data_obj, $scope.create_chart_options([false, false], [false, false], max_val, min_val));
-      // $scope.ecg_chart = new Chartist.Line('#ecg_chart', chart_data_obj, chart_option_obj);
+
       $scope.ecg_chart_label = new Chartist.Line('#ecg_chart_label', {series: [[]]}, $scope.create_chart_options([false, false], [false, true], max_val, min_val));
     };
     $scope.initiate_heartrate_chart = function(max_val, min_val, chart_data) {
@@ -385,13 +380,7 @@ var app = angular.module("app")
         max_val = 80;
       }
       $scope.heartrate_chart = new Chartist.Line('#heartrate_chart', chart_data_obj, $scope.create_chart_options([false, false], [false, true], max_val, min_val));
-      // var chart_grid_data_obj = {
-      //   series: [
-      //     [],[],[],[],[],[],[],[],
-      //     chart_data
-      //   ]
-      // };
-      // $scope.heartrate_chart_grid = new Chartist.Line('#heartrate_chart_grid', chart_grid_data_obj, $scope.create_chart_options([false, false], [false, false], max_val, min_val));
+    
     };
     $scope.initiate_variability_chart = function(max_val, min_val, chart_data) {
       var chart_data_obj = {
@@ -497,7 +486,7 @@ var app = angular.module("app")
             'stroke-dashoffset': -pathLength + 'px'
           });
           // We can't use guided mode as the animations need to rely on setting begin manually
-          // See http://gionkunz.github.io/chartist-js/api-documentation.html#chartistsvg-function-animate
+
           data.element.animate(animationDefinition, false);
         }
       });
@@ -628,7 +617,7 @@ var app = angular.module("app")
              if (value > max_offset) {
                value = max_offset;
              };
-	           //$target.css("margin-left", value);
+
              $scope.$apply(function() {
                $scope.chart_spanner_position = value / jQuery(".chart_spanner_container").width() * 100;
                var pixel_to_scroll = $scope.chart_spanner_position / 100 * jQuery("#ecg_chart").width();
@@ -647,7 +636,7 @@ var app = angular.module("app")
         left: left,
       };
       if (std >= 35 && tp >= 80) {
-        // $scope.health_condition = 2;
+
         $scope.statistics_count[2] += 1;
         obj.text = "ST+";
         obj.color = $scope.ann_danger;
@@ -655,7 +644,7 @@ var app = angular.module("app")
         return obj;
       };
       if (std <= -20 && tp <= -20) {
-        // $scope.health_condition = 2;
+
         $scope.statistics_count[2] += 1;
         obj.text = "ST-";
         obj.color = $scope.ann_danger;
@@ -663,7 +652,7 @@ var app = angular.module("app")
         return obj;
       };
       if (tp >= 160 && hr <= 70 && std < 35) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         obj.text = "PVC";
         obj.color = $scope.ann_human;
@@ -671,7 +660,7 @@ var app = angular.module("app")
         return obj;
       } else {
         if (hrv >= 20 && hr <= 70 && tp < 0) {
-          // $scope.health_condition = 1;
+
           $scope.statistics_count[1] += 1;
           obj.text = "PVC";
           obj.color = $scope.ann_human;
@@ -680,7 +669,7 @@ var app = angular.module("app")
         }
       }
       if (hrv >= 10 && (hr >= 120 || hr <= 70)) {
-        // $scope.health_condition = 2;
+
         $scope.statistics_count[1] += 1;
         obj.text = "ARR";
         obj.color = $scope.ann_caution;
@@ -689,7 +678,7 @@ var app = angular.module("app")
       };
 
       if (tp <= -5) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         obj.text = "T-";
         obj.color = $scope.ann_caution;
@@ -698,7 +687,7 @@ var app = angular.module("app")
       };
 
       if (tp >= 100) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         obj.text = "T+";
         obj.color = $scope.ann_caution;
@@ -707,7 +696,7 @@ var app = angular.module("app")
       };
 
       if (std <= -8 || std >= 20) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         obj.color = $scope.ann_red;
         if (std <= -8) {
@@ -717,14 +706,13 @@ var app = angular.module("app")
           obj.text = "SD+";
           obj.tooltip = "<b>Positive ST Deviation</b><br/><ul><li>HR:  " + hr + "</li><li>T:  " + tp + "%</li><li>ST:  " + std + "%</li></ul>";
         }
-        // obj.text = "STD";
-        // obj.tooltip = "ST Deviation";
+   
         return obj;
       };
 
 
       if (hr >= 140) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         obj.text = "TAR";
         obj.color = $scope.ann_human;
@@ -733,7 +721,7 @@ var app = angular.module("app")
       };
 
       if (hr <= 50) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         obj.text = "BRA";
         obj.color = $scope.ann_human;
@@ -741,16 +729,16 @@ var app = angular.module("app")
         return obj;
       };
       if (tp >= -5 && tp <= 5) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[1] += 1;
         obj.text = "T0";
         obj.color = $scope.ann_caution;
         obj.tooltip = "<b>T Absence</b><br/><ul><li>HR:  " + hr + "</li><li>T:  " + tp + "%</li><li>ST:  " + std + "%</li></ul>";
         return obj;
       };
-      // $scope.health_condition = 0;
+
       if (tp > 5 && hr > 40 && hr < 140 && hrv < 10 && std > -8 && std < 20) {
-        // $scope.health_condition = 1;
+
         $scope.statistics_count[0] += 1;
         obj.text = "N";
         obj.color = $scope.ann_normal;
@@ -870,7 +858,7 @@ var app = angular.module("app")
       for (var loop = 1; loop < $scope.annotations.length; loop++) {
         $scope.check_and_increase_this_annotation_statistic($scope.annotations[loop]);
       };
-      // console.log($scope.annotations_statistic);
+
     };
     $scope.normalize_annotation_statistics = function() {
       var arr = [];
@@ -896,7 +884,7 @@ var app = angular.module("app")
         content: content,
         time: new Date()
       };
-      // console.log("OK");
+
       $scope.chat_messages.push(chat_message);
       $scope.message_content = "";
       $scope.custom_timeout = $timeout(function() {
@@ -911,7 +899,7 @@ var app = angular.module("app")
         content: content,
         time: new Date()
       };
-      // heroku_socket.emit("chat_message_send_to_other_machine_in_laboratory", chat_message_to_server);
+
     };
     $scope.export_this_analysis_as_pdf_report = function() {
       var reportObj = {
@@ -936,7 +924,7 @@ var app = angular.module("app")
     $scope.initiate_ecg_chart_typical = function(chart_data) {
       var chart_data_obj = {
         series: [
-          // [],[],[],
+          
           chart_data
         ]
       };
@@ -961,7 +949,7 @@ var app = angular.module("app")
         },
       };
       $scope.ecg_chart_typical = new Chartist.Line('#ecg_chart_typical', chart_data_obj, $scope.create_chart_options_without_highlow([false, false], [false, false], false));
-      // $scope.ecg_chart = new Chartist.Line('#ecg_chart', chart_data_obj, chart_option_obj);
+
     };
     $scope.initiate_heartrate_chart_without_highlow = function(chart_data) {
       var chart_data_obj = {
@@ -1013,7 +1001,7 @@ var app = angular.module("app")
       for (var loop = 0; loop < $scope.waveform_data_charts.length; loop++) {
         var annotation_text = '<div style="width:100%;position:relative;height:15px;float:left;display:inline-block;margin-bottom:-52px;">';
         for (var value = 0; value < $scope.waveform_data_charts[loop].segment_annotations.length; value++) {
-          // console.log($scope.waveform_data_charts[loop].segment_annotations);
+
           var this_anno = $scope.waveform_data_charts[loop].segment_annotations[value];
           annotation_text += '<div style="left:' + this_anno.percent + '%;position:absolute;top:2px;"><span contenteditable="true" style="font-size:9px;color:' + this_anno.color + ';">' + this_anno.text + '</span></div>';
         };
@@ -1092,7 +1080,7 @@ var app = angular.module("app")
           segment_data: data,
           segment_annotations: annotations,
         };
-        // console.log(obj.segment_annotations);
+
         $scope.waveform_data_charts.push(obj);
       };
       $scope.add_all_html_segment_charts();
