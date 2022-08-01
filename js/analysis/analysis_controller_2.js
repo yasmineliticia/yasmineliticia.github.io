@@ -598,7 +598,7 @@ var app = angular.module("app")
         left: left,
         type: "",
       };
-      if (std >= 35 && tp >= 80) {
+      if (std >= 30 && tp >= 80) {
         $scope.statistics_count[2] += 1;
         obj.text = "ST+";
         obj.type = "ST Elevation";
