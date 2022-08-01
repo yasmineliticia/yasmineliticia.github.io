@@ -634,7 +634,7 @@ var app = angular.module("app")
           return obj;
         }
       }
-      if (hrv >= 10 && (hr >= 120 || hr <= 70)) {
+      if (hrv >= 12 && (hr >= 120 || hr <= 70)) {
         $scope.statistics_count[1] += 1;
         obj.text = "ARR";
         obj.type = "Arrythmia";
@@ -643,7 +643,7 @@ var app = angular.module("app")
         return obj;
       };
 
-      if (tp <= -5) {
+      if (tp <= -10) {
         $scope.statistics_count[1] += 1;
         obj.text = "T-";
         obj.type = "T Wave Invert";
@@ -661,10 +661,10 @@ var app = angular.module("app")
         return obj;
       };
 
-      if (std <= -8 || std >= 20) {
+      if (std <= -10 || std >= 20) {
         $scope.statistics_count[1] += 1;
         obj.color = $scope.ann_red;
-        if (std <= -8) {
+        if (std <= -10) {
           obj.text = "SD-";
           obj.type = "Negative ST Deviation";
           obj.tooltip = "<b>Negative ST Deviation</b><br/><ul><li>HR:  " + hr + "</li><li>T:  " + tp + "%</li><li>ST:  " + std + "%</li></ul>";
@@ -694,7 +694,7 @@ var app = angular.module("app")
         obj.tooltip = "<b>Bradycardia</b><br/><ul><li>HR:  " + hr + "</li><li>T:  " + tp + "%</li><li>ST:  " + std + "%</li></ul>";
         return obj;
       };
-      if (tp >= -5 && tp <= 5) {
+      if (tp >= -10 && tp <= 4) {
 
         $scope.statistics_count[1] += 1;
         obj.text = "T0";
@@ -893,8 +893,6 @@ var app = angular.module("app")
           stdeviation: $scope.stdeviation_bin_ann,
         }
       };
-
-      $window.localStorage["cassandra_command_print_to_print_this_report_as_pdf"] = JSON.stringify(reportObj);
       $window.open("print.html", "_blank", 'width=1280,height=720');
     };
   };
@@ -909,13 +907,9 @@ var app = angular.module("app")
       name: "Local server",
       link: "http://localhost:8000",
     };
-    $scope.transaction_server = {
-      name: "Cassandra express server",
-      link: "http://103.15.51.249:1337",
-    };
+
     $scope.socket = io.connect($scope.local_server.link, { 'force new connection': true } );
-    $scope.heroku_socket = io.connect($scope.transaction_server.link, { 'force new connection': true } );
-  };
+    };
   $scope.handling_data_on_pageload = function() {
     $scope.record_of_interest = JSON.parse($window.localStorage["cassandra_command_analysis_to_run_this_signal"]);
     $window.localStorage.removeItem("cassandra_command_lab_to_run_this_signal");
