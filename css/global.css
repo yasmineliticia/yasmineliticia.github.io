@@ -9,7 +9,7 @@
   }
   /** la couleur du fond **/
   body {
-	background: #1f253d;
+	background: #c2c6d6;
 }
    
 h2 {
@@ -26,7 +26,7 @@ h2 {
 	margin-left: 20px;
 	margin-bottom: 20px;
 	padding-left: 45px;
-	background: #50597b;
+	background: #c2c6d6;
 	color: #fff;
 }
 
@@ -110,7 +110,7 @@ input[type=text]::-webkit-input-placeholder {
   }
   
   #div_chat_content::-webkit-scrollbar-thumb {
-	background-color: #F90;
+	background-color: royalblue;
 	border-radius: 10px;
 	  background-image: -webkit-linear-gradient(45deg,
 	  rgba(255, 255, 255, .2) 25%,
@@ -130,7 +130,7 @@ input[type=text]::-webkit-input-placeholder {
   }
   
   ::-webkit-scrollbar-thumb {
-	background-color: #F90;
+	background-color: royalblue;
 	  background-image: -webkit-linear-gradient(45deg,
 	  rgba(255, 255, 255, .2) 25%,
 												transparent 25%,
@@ -148,21 +148,21 @@ input[type=text]::-webkit-input-placeholder {
 	}
 		.block {
 			margin-bottom: 15px;
-			background: #394264;
+			background: #516298;
 			border-radius: 5px;
 		}
 	.record-block {
 		padding: 10px;
 		min-height: 106px;
 		height: auto;
-		background: #394264;
+		background: #516298;
 			  border-radius: 4px;
 		border: 2px solid transparent;
 		transition: border 0.4s;
 		margin-bottom: 11px;
 	}
 	.my-card {
-	  background-color: rgb(57,66,100);
+	  background-color: #516298;
 	  border-radius: 3px;
 	  display: inline-block;
 	  float: left;
@@ -173,7 +173,7 @@ input[type=text]::-webkit-input-placeholder {
 	  display: inline-block;
 	  border: none;
 	  background-color: transparent;
-	  border-right: 3px solid rgb(31,37,61);
+	  border-right: 3px solid #516298;
 	  height: 46px;
 	  color: white;
 	  font-size: 16px;
@@ -235,7 +235,7 @@ input[type=text]::-webkit-input-placeholder {
 	}
 	.div_small_popup > .body > .collum > .sub-section:focus {
 	  outline: none;
-	  border: 2px solid rgb(230,76,101);
+	  border: 2px solid rgb(201, 122, 135);
 	}
 	.sub-section-input {
 	  height:42px;line-height:42px;border-radius:3px;background-color:rgba(0,0,0,0.8);border:2px solid #ccc;padding-left:12px;padding-right:12px;
@@ -283,7 +283,7 @@ input[type=text]::-webkit-input-placeholder {
 	}
 	.div_small_popup > .body > .collum > .collum > input:focus {
 	  outline: none;
-	  border: 2px solid rgb(230,76,101);
+	  border: 2px solid rgb(218, 105, 124);
 	}
 	.div_small_popup > .body > .collum {
 	  float: left;
@@ -329,22 +329,22 @@ input[type=text]::-webkit-input-placeholder {
 	  white-space: nowrap;
 	}
 	.record-block:hover {
-	  border: 2px solid rgb(40,156,244);
+	  border: 2px solid rgb(7, 125, 215);
 	}
 	.normal_color {
-	  color: rgb(17,168,171);
+	  color: rgb(7, 129, 34);
 	}
 	.caution_color {
-	  color: rgb(252,177,80);
+	  color: rgb(245, 165, 60);
 	}
 	.danger_color {
-	  color: rgb(230,76,101);
+	  color: rgb(243, 7, 46);
 	}
 	.block-text_color {
-	  color: rgb(114,128,149);
+	  color: rgb(154, 165, 182);
 	}
 	.highlight_color {
-	  color: rgb(40,156,244);
+	  color: rgb(87, 173, 239);
 	}
 	.grey_color {
 	  color: #E0E0E0;
