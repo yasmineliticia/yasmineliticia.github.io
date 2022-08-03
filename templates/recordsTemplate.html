@@ -37,6 +37,12 @@
                   </span>
                   <input required type="text" class="sub-section" placeholder="Record name..." ng-model="record_date" value="{{record_date}}" style="width:120px;border-top-left-radius:0px;border-bottom-left-radius:0px;" disabled>
                 </div>
+                <div class="collum" style="width:80%;float:left;margin-top:-8px;">
+                  <span style="width:100%;display:inline-block;float:left;text-align:left;margin:13px 0px;font-size:16px;padding-left:2px;">
+                    Sampling frequency:
+                  </span>
+                  <input required ng-change="update_duration()" type="text" class="sub-section" placeholder="Hz..." ng-model="record_sampling_frequency" style="width:calc(100% - 26px);border-top-right-radius:0px;border-bottom-right-radius:0px;">
+                </div>
                 <div class="collum" style="width:80%;float:left;">
                   <span style="width:100%;display:inline-block;float:left;text-align:left;margin:13px 0px;font-size:16px;padding-left:2px;">
                     Duration:
