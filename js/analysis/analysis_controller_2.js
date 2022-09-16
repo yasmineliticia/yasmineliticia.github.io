@@ -13,7 +13,7 @@ var app = angular.module("app")
     $scope.record_date = new Date();
     // Down sampled ecg, fs = 40, used for plotting only
     $scope.ecg_bin = [];
-    // FOR GRAPH, MUST NOT CHANGE, STABLE THE OUTCOME
+    
     $scope.heartrate_bin = [];
     $scope.variability_bin = [];
     $scope.tmag_bin = [];
@@ -55,7 +55,7 @@ var app = angular.module("app")
   };
   $scope.initiate_chart_variables = function() {
     $scope.data_pointer = 0;
-    $scope.sampling_frequency = 80;    // 100 points per 1,000ms
+    $scope.sampling_frequency =     80;// 100 points per 1,000ms
 
     $scope.heart_rate = "---";
     $scope.variability = "---";
@@ -598,7 +598,7 @@ var app = angular.module("app")
         left: left,
         type: "",
       };
-      if (std >= 35 && tp >= 80) {
+      if (std >= 30 && tp >= 80) {
         $scope.statistics_count[2] += 1;
         obj.text = "ST+";
         obj.type = "ST Elevation";
@@ -634,7 +634,7 @@ var app = angular.module("app")
           return obj;
         }
       }
-      if (hrv >= 10 && (hr >= 120 || hr <= 70)) {
+      if (hrv >= 12 && (hr >= 120 || hr <= 70)) {
         $scope.statistics_count[1] += 1;
         obj.text = "ARR";
         obj.type = "Arrythmia";
@@ -643,7 +643,7 @@ var app = angular.module("app")
         return obj;
       };
 
-      if (tp <= -5) {
+      if (tp <= -10) {
         $scope.statistics_count[1] += 1;
         obj.text = "T-";
         obj.type = "T Wave Invert";
@@ -661,10 +661,10 @@ var app = angular.module("app")
         return obj;
       };
 
-      if (std <= -8 || std >= 20) {
+      if (std <= -10 || std >= 20) {
         $scope.statistics_count[1] += 1;
         obj.color = $scope.ann_red;
-        if (std <= -8) {
+        if (std <= -10) {
           obj.text = "SD-";
           obj.type = "Negative ST Deviation";
           obj.tooltip = "<b>Negative ST Deviation</b><br/><ul><li>HR:  " + hr + "</li><li>T:  " + tp + "%</li><li>ST:  " + std + "%</li></ul>";
@@ -694,7 +694,7 @@ var app = angular.module("app")
         obj.tooltip = "<b>Bradycardia</b><br/><ul><li>HR:  " + hr + "</li><li>T:  " + tp + "%</li><li>ST:  " + std + "%</li></ul>";
         return obj;
       };
-      if (tp >= -5 && tp <= 5) {
+      if (tp >= -10 && tp <= 4) {
 
         $scope.statistics_count[1] += 1;
         obj.text = "T0";
@@ -893,8 +893,6 @@ var app = angular.module("app")
           stdeviation: $scope.stdeviation_bin_ann,
         }
       };
-
-      $window.localStorage["cassandra_command_print_to_print_this_report_as_pdf"] = JSON.stringify(reportObj);
       $window.open("print.html", "_blank", 'width=1280,height=720');
     };
   };
@@ -903,7 +901,7 @@ var app = angular.module("app")
     jQuery("#message_box").hide();
     jQuery("#page_loading").show();
     $scope.loading_message = "Loading components. Please wait ...";
-  };
+};
   $scope.connect_socketio_on_pageload = function() {
     $scope.local_server = {
       name: "Local server",
