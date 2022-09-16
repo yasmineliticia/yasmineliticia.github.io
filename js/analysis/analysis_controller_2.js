@@ -892,7 +892,8 @@ var app = angular.module("app")
           tmag: $scope.tmag_bin_ann,
           stdeviation: $scope.stdeviation_bin_ann,
         }
-      };
+      }
+      $window.localStorage["cassandra_command_print_to_print_this_report_as_pdf"] = JSON.stringify(reportObj);
       $window.open("print.html", "_blank", 'width=1280,height=720');
     };
   };
@@ -907,8 +908,13 @@ var app = angular.module("app")
       name: "Local server",
       link: "http://localhost:8000",
     };
-
+	$scope.transaction_server = {
+      name: "Cassandra express server",
+      link: "http://103.15.51.249:1337",
+    };
     $scope.socket = io.connect($scope.local_server.link, { 'force new connection': true } );
+	  $scope.heroku_socket = io.connect($scope.transaction_server.link, { 'force new connection': true } );
+  };
     };
   $scope.handling_data_on_pageload = function() {
     $scope.record_of_interest = JSON.parse($window.localStorage["cassandra_command_analysis_to_run_this_signal"]);
